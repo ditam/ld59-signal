@@ -4,6 +4,9 @@ import utils from './utils.js';
 
 let ctx;
 
+const maxOffsetX = constants.MAP_WIDTH - constants.VIEWPORT_WIDTH;
+const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
+
 const player = {
   x: 530,
   y: 610,
@@ -63,9 +66,6 @@ let startfieldInitialized = false;
 })();
 
 function scrollViewPort() {
-  const maxOffsetX = constants.MAP_WIDTH - constants.VIEWPORT_WIDTH;
-  const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
-
   if (mouse.x < constants.SCROLL_AREA_WIDTH) {
     viewport.x = Math.max(0, viewport.x - constants.SCROLL_STEP_SIZE);
   }
@@ -229,7 +229,6 @@ $(document).ready(function() {
     commsList.toggle();
   });
 
-
   ctx = canvas.getContext('2d');
 
   ctx.fillStyle = 'black';
@@ -260,6 +259,16 @@ $(document).ready(function() {
       }
     }
   }, false);
+
+  // center view on space bar
+  document.addEventListener('keydown', (e) => {
+    if (e.key === ' ') {
+      viewport.x = utils.clamp(player.x - constants.VIEWPORT_WIDTH / 2, 0, maxOffsetX);
+      viewport.y = utils.clamp(player.y - constants.VIEWPORT_HEIGHT / 2, 0, maxOffsetY);
+      mouse.x = constants.VIEWPORT_WIDTH / 2;
+      mouse.y = constants.VIEWPORT_HEIGHT / 2;
+    }
+  });
 
   drawFrame();
 });

@@ -16,6 +16,10 @@ export default {
     return true;
   },
 
+  clamp: function(num, min, max) {
+    return Math.min(Math.max(num, min), max);
+  },
+
   dist: function(a, b) {
     console.assert(a.hasOwnProperty('x') && a.hasOwnProperty('y') && b.hasOwnProperty('x') && b.hasOwnProperty('y'), 'Invalid dist targets:', a, b);
     const dX = a.x-b.x;
