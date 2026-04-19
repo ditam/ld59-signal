@@ -5,13 +5,14 @@ import utils from './utils.js';
 let ctx;
 
 const player = {
-  x: 300,
-  y: 120,
+  x: 530,
+  y: 610,
   score: 17,
   speed: 1,
-  range: 50
+  range: 100
 };
 
+// TODO: set if localhost?
 window.isDebug = true;
 
 if (window.isDebug) {
@@ -20,10 +21,15 @@ if (window.isDebug) {
 
 const viewport = {
   // x and y are offsets from (0, 0)
-  // TODO: guards against negatives
-  x: 0,
-  y: 0,
+  x: 400,
+  y: 300,
 };
+
+// sanity checks for initial setup
+console.assert(player.x < constants.MAP_WIDTH, 'Invalid player x0');
+console.assert(player.y < constants.MAP_HEIGHT, 'Invalid player y0');
+console.assert(viewport.x + constants.VIEWPORT_WIDTH <= constants.MAP_WIDTH, 'Invalid viewport x0 ' + viewport.x);
+console.assert(viewport.y + constants.VIEWPORT_HEIGHT <= constants.MAP_HEIGHT, 'Invalid viewport y0 ' + viewport.y);
 
 let mapObjects = [];
 
@@ -58,15 +64,17 @@ function scrollViewPort() {
 let debugLog, debugLog2;
 let frameCount = 0;
 const mouse = {
-  x: 0,
-  y: 0
+  // NB: Values inside viewport!
+  // (init with non-0 so that scroll is not triggered)
+  x: constants.VIEWPORT_WIDTH / 2,
+  y: constants.VIEWPORT_HEIGHT / 2
 };
+
 function drawFrame(timestamp) {
   frameCount++;
 
-  if (frameCount % constants.SCROLL_INTERVAL === 0) {
-    scrollViewPort();
-  }
+  // check mouse position and scroll if necessary
+  scrollViewPort();
 
   if (window.isDebug) {
     debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
@@ -95,12 +103,54 @@ function drawFrame(timestamp) {
   ctx.fill();
   ctx.restore();
 
+  if (player.target) {
+    // move player towards target
+    let t = player.target;
+    const dist = utils.dist(player, t);
+
+    if (dist < player.speed * 3) {
+      // snap to target to avoid wiggling
+      // (allowing for bigger overshoot with bigger speeds)
+      player.x = t.x;
+      player.y = t.y;
+      delete player.target;
+    } else {
+      // dX/dY is the unit vector pointing at target
+      const dX = (t.x - player.x) / dist;
+      const dY = (t.y - player.y) / dist;
+      player.x += dX * player.speed;
+      player.y += dY * player.speed;
+    }
+  }
+
+  if (player.target) {
+    // NB: separate check, target might have been removed above
+    // draw target marker
+    ctx.save();
+    ctx.strokeStyle = 'rgba(200, 70, 70, 0.5)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.setLineDash([5, 15]);
+    ctx.moveTo(player.x - viewport.x, player.y - viewport.y);
+    ctx.lineTo(player.target.x - viewport.x, player.target.y - viewport.y);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // draw range indicator
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.beginPath();
+  ctx.setLineDash([5, 5]);
+  ctx.arc(player.x - viewport.x, player.y - viewport.y, player.range, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.restore();
+
   requestAnimationFrame(drawFrame);
 }
 
 let songs, sounds;
 $(document).ready(function() {
-  console.log('Hello Signal!');
   //songs = [
   //  new Audio('bgMusic1.mp3')
   //];
@@ -121,7 +171,6 @@ $(document).ready(function() {
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 1;
 
-  let printed = false;
   canvas.addEventListener('mousemove', event => {
     mouse.x = event.offsetX;
     mouse.y = event.offsetY;
@@ -130,6 +179,22 @@ $(document).ready(function() {
       debugLog2.text('mouse:' + JSON.stringify(mouse));
     }
   });
+
+  // custom right-click behaviour
+  document.addEventListener('contextmenu', function(e) {
+    if (e.target === canvas) {
+      // this is to be nice so that you can still use it outside the game canvas
+      e.preventDefault();
+      const target = {
+        x: viewport.x + e.offsetX,
+        y: viewport.y + e.offsetY
+      };
+      if (utils.dist(player, target) > constants.MIN_TARGET_DIST) {
+        console.log('set new target:', target);
+        player.target = target;
+      }
+    }
+  }, false);
 
   drawFrame();
 });

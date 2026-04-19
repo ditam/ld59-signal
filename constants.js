@@ -1,7 +1,7 @@
 export default {
   // map and viewport size
-  MAP_HEIGHT: 1200,
-  MAP_WIDTH: 2000,
+  MAP_HEIGHT: 800,
+  MAP_WIDTH: 1100,
   VIEWPORT_HEIGHT: 500,
   VIEWPORT_WIDTH: 700,
 
@@ -10,7 +10,9 @@ export default {
   GRID_CELL_HEIGHT: 100,
 
   // mouse scrolling params
-  SCROLL_AREA_WIDTH: 50,
-  SCROLL_INTERVAL: 1,
-  SCROLL_STEP_SIZE: 7,
+  SCROLL_AREA_WIDTH: 75,
+  SCROLL_STEP_SIZE: 10,
+
+  // gameplay params
+  MIN_TARGET_DIST: 50
 };
