@@ -61,7 +61,7 @@ function scrollViewPort() {
   }
 }
 
-let debugLog, debugLog2;
+let debugLog, debugLog2, debugLog3;
 let frameCount = 0;
 const mouse = {
   // NB: Values inside viewport!
@@ -71,15 +71,16 @@ const mouse = {
 };
 
 function drawFrame(timestamp) {
+  const t0 = performance.now();
   frameCount++;
 
-  // adjust viewport if necessary
-  scrollViewPort();
-
-  // optional debug stuff
+  // log debug stuff to DOM
   if (window.isDebug) {
     debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
   }
+
+  // adjust viewport if necessary
+  scrollViewPort();
 
   // clear canvas
   ctx.clearRect(0, 0, constants.VIEWPORT_WIDTH, constants.VIEWPORT_HEIGHT);
@@ -153,6 +154,10 @@ function drawFrame(timestamp) {
   // update UI if needed
   updateCommsList();
 
+  // perf check
+  const t1 = performance.now();
+  debugLog3.text((t1-t0).toFixed(1) + ' ms per frame');
+
   // queue next frame
   requestAnimationFrame(drawFrame);
 }
@@ -163,7 +168,7 @@ function updateCommsList() {
     return utils.dist(player, o) < player.range;
   });
 
-  const idsInRange = objectsInRange.map(o => o.id);
+  const idsInRange = objectsInRange.map(o => o.id).sort();
 
   if (!utils.arraysEqual(idsInRange_old, idsInRange)) {
     console.log('-- new comms list:', objectsInRange);
@@ -190,6 +195,7 @@ $(document).ready(function() {
 
   debugLog = $('#debug-log');
   debugLog2 = $('#debug-log2');
+  debugLog3 = $('#debug-log3');
 
   commsList = $('#comms-list');
   $('#comms-button').on('click', () => {
