@@ -1,0 +1,20 @@
+body {
+  background-color: #eee;
+
+  font-weight: 400;
+  font-style: normal;
+
+  user-select: none;
+}
+
+#main-canvas {
+  position: absolute;
+  left: 40px; /* FIXME: remove after alignment tests */
+  top: 0;
+  border: 1px solid black;
+}
+
+#debug-container {
+  position: absolute;
+  top: 510px;
+}
