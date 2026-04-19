@@ -14,5 +14,7 @@ export default {
   SCROLL_STEP_SIZE: 10,
 
   // gameplay params
+  INITIAL_RANGE: 120,
+  INITIAL_SPEED: 1,
   MIN_TARGET_DIST: 50
 };

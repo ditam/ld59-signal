@@ -7,10 +7,11 @@ body {
   user-select: none;
 }
 
-#main-canvas {
+#main-container {
   position: absolute;
-  left: 40px; /* FIXME: remove after alignment tests */
-  top: 0;
+}
+
+#main-canvas {
   border: 1px solid black;
   background-color: rgba(54, 43, 81); /* TODO: gradient or move to drawFrame? */
 }
@@ -18,4 +19,30 @@ body {
 #debug-container {
   position: absolute;
   top: 510px;
+}
+
+#comms-button {
+  position: absolute;
+  width: 50px;
+  top: 10px;
+  right: 10px;
+  color: white;
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+#comms-button:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+#comms-list {
+  position: absolute;
+  top: 60px;
+  right: 10px;
+  /* fill from JS and there wont be a need for these */
+  width: 100px;
+  height: 200px;
+  background-color: rgba(255, 255, 255, 0.2);
 }

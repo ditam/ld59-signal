@@ -1,6 +1,21 @@
 import constants from './constants.js';
 
+let _id_counter = 0;
+
 export default {
+  arraysEqual: function(a, b) {
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length !== b.length) return false;
+
+    for (let i = 0; i < a.length; ++i) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+    return true;
+  },
+
   dist: function(a, b) {
     console.assert(a.hasOwnProperty('x') && a.hasOwnProperty('y') && b.hasOwnProperty('x') && b.hasOwnProperty('y'), 'Invalid dist targets:', a, b);
     const dX = a.x-b.x;
@@ -38,6 +53,11 @@ export default {
     }
 
     ctx.restore();
+  },
+
+  getNewID: function() {
+    _id_counter++;
+    return 'id_' + _id_counter;
   },
 
   getRandomInt: function(min, max) { // min and max included

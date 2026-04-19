@@ -8,8 +8,8 @@ const player = {
   x: 530,
   y: 610,
   score: 17,
-  speed: 1,
-  range: 100
+  speed: constants.INITIAL_SPEED,
+  range: constants.INITIAL_RANGE
 };
 
 window.isDebug = location && location.hostname==='localhost';
@@ -35,6 +35,7 @@ let mapObjects = [];
 (function generateMapObjects() {
   for (let i=0; i<10; i++) {
     mapObjects.push({
+      id: utils.getNewID(),
       x: utils.getRandomInt(constants.MAP_WIDTH),
       y: utils.getRandomInt(constants.MAP_HEIGHT)
     });
@@ -72,13 +73,15 @@ const mouse = {
 function drawFrame(timestamp) {
   frameCount++;
 
-  // check mouse position and scroll if necessary
+  // adjust viewport if necessary
   scrollViewPort();
 
+  // optional debug stuff
   if (window.isDebug) {
     debugLog.text(JSON.stringify(player) + ', ' + JSON.stringify(viewport));
   }
 
+  // clear canvas
   ctx.clearRect(0, 0, constants.VIEWPORT_WIDTH, constants.VIEWPORT_HEIGHT);
 
   // gridlines
@@ -94,14 +97,7 @@ function drawFrame(timestamp) {
   });
   ctx.restore();
 
-  // draw player
-  ctx.save();
-  ctx.beginPath();
-  ctx.fillStyle = 'rgb(114, 218, 168)';
-  ctx.arc(player.x - viewport.x, player.y - viewport.y, 25, 0, Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-
+  // apply player movement
   if (player.target) {
     // move player towards target
     let t = player.target;
@@ -137,6 +133,14 @@ function drawFrame(timestamp) {
     ctx.restore();
   }
 
+  // draw player
+  ctx.save();
+  ctx.beginPath();
+  ctx.fillStyle = 'rgb(114, 218, 168)';
+  ctx.arc(player.x - viewport.x, player.y - viewport.y, 25, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
   // draw range indicator
   ctx.save();
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
@@ -146,9 +150,30 @@ function drawFrame(timestamp) {
   ctx.stroke();
   ctx.restore();
 
+  // update UI if needed
+  updateCommsList();
+
+  // queue next frame
   requestAnimationFrame(drawFrame);
 }
 
+let idsInRange_old = [];
+function updateCommsList() {
+  const objectsInRange = mapObjects.filter(o => {
+    return utils.dist(player, o) < player.range;
+  });
+
+  const idsInRange = objectsInRange.map(o => o.id);
+
+  if (!utils.arraysEqual(idsInRange_old, idsInRange)) {
+    console.log('-- new comms list:', objectsInRange);
+    // TODO: generate list in DOM
+  }
+
+  idsInRange_old = idsInRange;
+}
+
+let commsList;
 let songs, sounds;
 $(document).ready(function() {
   //songs = [
@@ -165,6 +190,13 @@ $(document).ready(function() {
 
   debugLog = $('#debug-log');
   debugLog2 = $('#debug-log2');
+
+  commsList = $('#comms-list');
+  $('#comms-button').on('click', () => {
+    commsList.toggle();
+  });
+
+
   ctx = canvas.getContext('2d');
 
   ctx.fillStyle = 'black';
