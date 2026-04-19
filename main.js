@@ -12,8 +12,7 @@ const player = {
   range: 100
 };
 
-// TODO: set if localhost?
-window.isDebug = true;
+window.isDebug = location && location.hostname==='localhost';
 
 if (window.isDebug) {
   console.log('=== loaded in debug mode ===');
@@ -115,6 +114,7 @@ function drawFrame(timestamp) {
       player.y = t.y;
       delete player.target;
     } else {
+      // move towards target
       // dX/dY is the unit vector pointing at target
       const dX = (t.x - player.x) / dist;
       const dY = (t.y - player.y) / dist;
