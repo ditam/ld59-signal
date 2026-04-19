@@ -43,6 +43,25 @@ let mapObjects = [];
   console.log('map:', mapObjects);
 })();
 
+const bgStars = [];
+let startfieldInitialized = false;
+(function generateStarfield() {
+  console.assert(!startfieldInitialized, 'starfield already initialized');
+  startfieldInitialized = true;
+  for (let i=0; i<300; i++) {
+    const b = utils.getRandomInt(0, 185); // brightness
+    const dR = utils.getRandomInt(0, 70);
+    const dG = utils.getRandomInt(0, 70);
+    const dB = utils.getRandomInt(0, 70);
+    bgStars.push({
+      x: utils.getRandomInt(0, constants.MAP_WIDTH),
+      y: utils.getRandomInt(0, constants.MAP_HEIGHT),
+      size: Math.random() < 0.3 ? utils.getRandomInt(1, 3) : 1,
+      color: `rgb(${b+dR}, ${b+dG}, ${b+dB})`
+    });
+  }
+})();
+
 function scrollViewPort() {
   const maxOffsetX = constants.MAP_WIDTH - constants.VIEWPORT_WIDTH;
   const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
@@ -89,6 +108,14 @@ function drawFrame(timestamp) {
   if (isDebug) {
     utils.drawDebugGrid(ctx, viewport);
   }
+
+  // bg stars // TODO: could be static for a given viewport
+  ctx.save();
+  bgStars.forEach(o => {
+    ctx.fillStyle = o.color;
+    ctx.fillRect(o.x - viewport.x, o.y - viewport.y, o.size, o.size);
+  });
+  ctx.restore();
 
   // map objects
   ctx.save();
