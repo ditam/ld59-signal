@@ -10,7 +10,7 @@ const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
 const player = {
   x: 530,
   y: 610,
-  score: 17,
+  money: 17,
   speed: constants.INITIAL_SPEED,
   range: constants.INITIAL_RANGE
 };
@@ -40,7 +40,8 @@ let mapObjects = [];
     mapObjects.push({
       id: utils.getNewID(),
       x: utils.getRandomInt(constants.MAP_WIDTH),
-      y: utils.getRandomInt(constants.MAP_HEIGHT)
+      y: utils.getRandomInt(constants.MAP_HEIGHT),
+      population: utils.getRandomInt(1000)
     });
   }
   console.log('map:', mapObjects);
@@ -179,6 +180,7 @@ function drawFrame(timestamp) {
   ctx.restore();
 
   // update UI if needed
+  updateHeader();
   updateCommsList();
 
   // perf check
@@ -205,6 +207,25 @@ function updateCommsList() {
   idsInRange_old = idsInRange;
 }
 
+function updateHeader() {
+  moneyCounter.text(`${player.money} credits`);
+
+  const totalPopulation = utils.sum(mapObjects.map(o => o.population));
+  const coveredPopulation = calculateCoverage();
+  const percentage = coveredPopulation / totalPopulation * 100;
+  coverageCounter.text(`${coveredPopulation} listeners (${percentage.toFixed(2)}%)`);
+}
+
+function calculateCoverage() {
+  // FIXME: for coverage, we need multiple sources, not just the player
+  const objectsInRange = mapObjects.filter(o => {
+    return utils.dist(player, o) < player.range;
+  });
+
+  return utils.sum(objectsInRange.map(o => o.population));
+}
+
+let moneyCounter, coverageCounter;
 let commsList;
 let songs, sounds;
 $(document).ready(function() {
@@ -224,6 +245,8 @@ $(document).ready(function() {
   debugLog2 = $('#debug-log2');
   debugLog3 = $('#debug-log3');
 
+  moneyCounter = $('#money-counter');
+  coverageCounter = $('#coverage-counter');
   commsList = $('#comms-list');
   $('#comms-button').on('click', () => {
     commsList.toggle();

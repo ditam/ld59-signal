@@ -74,5 +74,9 @@ export default {
 
   getRandomItem: function (array) {
     return array[Math.floor(Math.random() * array.length)];
+  },
+
+  sum: function(array) {
+    return array.reduce((partialSum, a) => partialSum + a, 0);
   }
 }

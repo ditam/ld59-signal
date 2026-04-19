@@ -21,6 +21,18 @@ body {
   top: 510px;
 }
 
+#header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: white;
+}
+
+#header > div {
+  display: inline-block;
+  padding-right: 24px;
+}
+
 #comms-button {
   position: absolute;
   width: 50px;
