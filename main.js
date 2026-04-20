@@ -119,6 +119,47 @@ const mouse = {
   y: constants.VIEWPORT_HEIGHT / 2
 };
 
+function applyMovements() {
+  // player movement
+  if (player.target) {
+    // move player towards target
+    let t = player.target;
+    const dist = utils.dist(player, t);
+
+    if (dist < player.speed * 3) {
+      // snap to target to avoid wiggling
+      // (allowing for bigger overshoot with bigger speeds)
+      player.x = t.x;
+      player.y = t.y;
+      delete player.target;
+    } else {
+      // move towards target
+      const vector = utils.getTargetVector(player, t);
+      player.x += vector.dX * player.speed;
+      player.y += vector.dY * player.speed;
+    }
+  }
+
+  // other ships movement
+  mapObjects.filter(o=>o.type === 'patrol' || o.type === 'ship').forEach(o => {
+    if (o.type === 'patrol') {
+      // patrols move towards player
+      const vector = utils.getTargetVector(o, player);
+      o.x += vector.dX * constants.PATROL_SPEED;
+      o.y += vector.dY * constants.PATROL_SPEED;
+
+      // TODO: intercept check and effect
+    } else {
+      // other ships move towards optional targets
+      if (o.target) {
+        const vector = utils.getTargetVector(o, o.target);
+        o.x += vector.dX * constants.CARGO_SPEED;
+        o.y += vector.dY * constants.CARGO_SPEED;
+      }
+    }
+  });
+}
+
 function drawFrame(timestamp) {
   const t0 = performance.now();
   frameCount++;
@@ -147,6 +188,9 @@ function drawFrame(timestamp) {
   });
   ctx.restore();
 
+  // apply player and ship movements
+  applyMovements();
+
   // map objects
   ctx.save();
   mapObjects.forEach(o => {
@@ -170,28 +214,6 @@ function drawFrame(timestamp) {
     }
   });
   ctx.restore();
-
-  // apply player movement
-  if (player.target) {
-    // move player towards target
-    let t = player.target;
-    const dist = utils.dist(player, t);
-
-    if (dist < player.speed * 3) {
-      // snap to target to avoid wiggling
-      // (allowing for bigger overshoot with bigger speeds)
-      player.x = t.x;
-      player.y = t.y;
-      delete player.target;
-    } else {
-      // move towards target
-      // dX/dY is the unit vector pointing at target
-      const dX = (t.x - player.x) / dist;
-      const dY = (t.y - player.y) / dist;
-      player.x += dX * player.speed;
-      player.y += dY * player.speed;
-    }
-  }
 
   // draw target marker
   if (player.target) {  // NB: separate check, target might have been removed above

@@ -2,7 +2,7 @@ import constants from './constants.js';
 
 let _id_counter = 0;
 
-export default {
+const utils = {
   arraysEqual: function(a, b) {
     if (a === b) return true;
     if (a == null || b == null) return false;
@@ -76,6 +76,17 @@ export default {
     return array[Math.floor(Math.random() * array.length)];
   },
 
+  getTargetVector: function(object, target) {
+    // returns a unit vector pointing from object to target
+    const dist = utils.dist(object, target);
+    const dX = (target.x - object.x) / dist;
+    const dY = (target.y - object.y) / dist;
+    return {
+      dX: dX,
+      dY: dY
+    };
+  },
+
   removeItem: function (array, item) {
     const i = array.indexOf(item);
     console.assert(i > -1, 'Remove target object not found in array', item);
@@ -86,3 +97,5 @@ export default {
     return array.reduce((partialSum, a) => partialSum + a, 0);
   }
 }
+
+export default utils;
