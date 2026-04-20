@@ -469,12 +469,17 @@ function updateHeader() {
 }
 
 function calculateCoverage() {
-  // FIXME: for coverage, we need multiple sources, not just the player
-  const objectsInRange = mapObjects.filter(o => {
-    return utils.dist(player, o) < player.range;
+  const relays = mapObjects.filter(o=>o.hasRelay);
+  relays.push(player);
+
+  const objectsInRangeOfAnyRelay = mapObjects.filter(o => {
+    return relays.some(r=>{
+      const range = r.type === 'ship'? constants.RELAY_RANGE : player.range;
+      return utils.dist(r, o) <= range;
+    });
   });
 
-  return utils.sum(objectsInRange.map(o => o.population));
+  return utils.sum(objectsInRangeOfAnyRelay.map(o => o.population));
 }
 
 let moneyCounter, coverageCounter;
