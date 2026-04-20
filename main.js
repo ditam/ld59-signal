@@ -63,21 +63,21 @@ let mapObjects = [];
   }
   mapObjects.push({
     type: 'planet',
-    id: 'dagon',
+    id: 'Dagon',
     x: 540,
     y: 600,
     population: 200
   });
   mapObjects.push({
     type: 'planet',
-    id: 'dimidium',
+    id: 'Dimidium',
     x: 820,
     y: 350,
     population: 3000
   });
   mapObjects.push({
     type: 'planet',
-    id: 'talmos',
+    id: 'Talmos',
     x: 200,
     y: 210,
     population: 7000
@@ -165,9 +165,9 @@ function applyMovements() {
       o.y += vector.dY * constants.PATROL_SPEED;
 
       if (utils.dist(o, player) < constants.PATROL_INTERCEPT_RANGE) {
-        console.log('patrol intercept, reseting player.');
         resetProgress();
-        // TODO: add narration event
+        const planetID = o.id.split('patrol-').join('');
+        narration.show('patrol-intercept', planetID);
       }
     } else {
       // other ships move towards optional targets

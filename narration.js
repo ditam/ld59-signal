@@ -1,6 +1,6 @@
 import constants from './constants.js';
 
-let container, timeout;
+let container, timeout, emptyTimeout;
 
 const narrations = {
   'start-game': (
@@ -32,6 +32,9 @@ export default {
       console.warn('Overriding ongoing narration:', container.text());
       clearTimeout(timeout);
     }
+    if (emptyTimeout) {
+      clearTimeout(emptyTimeout);
+    }
     container.empty();
 
     let i = 0;
@@ -43,7 +46,10 @@ export default {
         timeout = setTimeout(_writeChar, constants.TYPING_CHAR_DELAY);
       } else {
         timeout = null;
-        setTimeout(() => {container.empty();}, 1500);
+        emptyTimeout = setTimeout(() => {
+          container.empty();
+          emptyTimeout = null;
+        }, 1500);
       }
     })();
   }
