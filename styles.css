@@ -16,6 +16,17 @@ body {
   background-color: rgba(54, 43, 81); /* TODO: gradient or move to drawFrame? */
 }
 
+#narration-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* width and height set from JS to match canvas */
+  box-sizing: border-box;
+  color: white;
+  padding: 120px;
+  line-height: 1.5em;
+}
+
 #debug-container {
   position: absolute;
   top: 510px;

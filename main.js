@@ -1,5 +1,6 @@
 
 import constants from './constants.js';
+import narration from './narration.js';
 import utils from './utils.js';
 
 let ctx;
@@ -8,12 +9,14 @@ const maxOffsetX = constants.MAP_WIDTH - constants.VIEWPORT_WIDTH;
 const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
 
 const player = {
-  x: 900,
-  y: 750,
+  x: 0,
+  y: 0,
   money: 17,
   speed: constants.INITIAL_SPEED,
   range: constants.INITIAL_RANGE
 };
+
+console.assert(constants.INITIAL_RANGE < constants.PLANETARY_ZONE_SIZE, 'Suspicious initial ranges, player >= planetary');
 
 window.isDebug = location && location.hostname==='localhost';
 
@@ -23,9 +26,22 @@ if (window.isDebug) {
 
 const viewport = {
   // x and y are offsets from (0, 0)
-  x: 400,
-  y: 300,
+  x: 0,
+  y: 0,
 };
+
+function resetProgress() {
+  player.x = 900;
+  player.y = 750;
+  player.money = 0;
+  delete player.target;
+  viewport.x = 400;
+  viewport.y = 300;
+}
+resetProgress();
+
+// img assets
+const dodoImg = $('<img>').attr('src', 'img/the-dodo.png').get(0);
 
 // sanity checks for initial setup
 console.assert(player.x < constants.MAP_WIDTH, 'Invalid player x0');
@@ -148,7 +164,11 @@ function applyMovements() {
       o.x += vector.dX * constants.PATROL_SPEED;
       o.y += vector.dY * constants.PATROL_SPEED;
 
-      // TODO: intercept check and effect
+      if (utils.dist(o, player) < constants.PATROL_INTERCEPT_RANGE) {
+        console.log('patrol intercept, reseting player.');
+        resetProgress();
+        // TODO: add narration event
+      }
     } else {
       // other ships move towards optional targets
       if (o.target) {
@@ -232,8 +252,23 @@ function drawFrame(timestamp) {
   // draw player
   ctx.save();
   ctx.beginPath();
-  ctx.fillStyle = 'rgb(114, 218, 168)';
-  ctx.arc(player.x - viewport.x, player.y - viewport.y, 25, 0, Math.PI*2);
+  const size = constants.PLAYER_SIZE;
+  ctx.save();
+    ctx.translate(player.x-viewport.x, player.y-viewport.y);
+    let vector;
+    if (player.target) {
+      vector = utils.getTargetVector(player, player.target);
+    } else {
+      vector = utils.getTargetVector(player, {x: player.x, y: player.y-100});
+    }
+    let angle = Math.atan(vector.dY/vector.dX) + Math.PI/2;
+    if (vector.dX < 0) {
+      angle -= Math.PI;
+    }
+    ctx.rotate(angle);
+    ctx.translate(-(player.x-viewport.x), -(player.y-viewport.y));
+    ctx.drawImage(dodoImg, player.x - viewport.x - size/2, player.y - viewport.y - size/2, size, size);
+  ctx.restore();
   ctx.fill();
   ctx.restore();
 
@@ -339,8 +374,15 @@ $(document).ready(function() {
 
   const canvas = document.getElementById('main-canvas');
 
-  $(canvas).attr('height', constants.VIEWPORT_HEIGHT);
   $(canvas).attr('width', constants.VIEWPORT_WIDTH);
+  $(canvas).attr('height', constants.VIEWPORT_HEIGHT);
+
+  const narrationContainer = $('#narration-container');
+  narrationContainer.css({
+    width: constants.VIEWPORT_WIDTH + 'px',
+    height: constants.VIEWPORT_HEIGHT + 'px'
+  });
+  narration.init(narrationContainer);
 
   debugLog = $('#debug-log');
   debugLog2 = $('#debug-log2');
@@ -359,6 +401,10 @@ $(document).ready(function() {
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 1;
 
+  // TODO: full intro setup
+  // TODO: replace placeholder name
+  narration.show('start-game', 'Test Name');
+
   canvas.addEventListener('mousemove', event => {
     mouse.x = event.offsetX;
     mouse.y = event.offsetY;
@@ -370,7 +416,7 @@ $(document).ready(function() {
 
   // custom right-click behaviour
   document.addEventListener('contextmenu', function(e) {
-    if (e.target === canvas) {
+    if (e.target === canvas || e.target === narrationContainer.get(0)) {
       // this is to be nice so that you can still use it outside the game canvas
       e.preventDefault();
       const target = {
