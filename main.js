@@ -16,6 +16,9 @@ const player = {
   range: constants.INITIAL_RANGE
 };
 
+// TODO: collect at beginning
+let playerName = 'Test Name';
+
 console.assert(constants.INITIAL_RANGE < constants.PLANETARY_ZONE_SIZE, 'Suspicious initial ranges, player >= planetary');
 
 window.isDebug = location && location.hostname==='localhost';
@@ -37,6 +40,10 @@ function resetProgress() {
   delete player.target;
   viewport.x = 400;
   viewport.y = 300;
+
+  if (isDebug) {
+    player.money = 120000;
+  }
 }
 resetProgress();
 
@@ -254,6 +261,16 @@ function drawFrame(timestamp) {
     };
     ctx.fillStyle = type2Color[o.type];
     ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+    // ship relay marker
+    if (o.type === 'ship' && o.hasRelay) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.beginPath();
+      ctx.setLineDash([5, 5]);
+      ctx.arc(o.x - viewport.x, o.y - viewport.y, constants.RELAY_RANGE, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
     // planetary zone marker
     if (o.type === 'planet') {
       ctx.save();
@@ -341,10 +358,11 @@ function updateObjectsInRange() {
     //console.log('-- new comms list:', objectsInRange);
     // update planetary patrols
     objectsInRange.filter(o=>o.type==='planet').forEach(p=>{
-      if (!p.hasPatrol) {
+      if (!p.bribed && !p.hasPatrol) {
         const patrol = {
           type: 'patrol',
           id: 'patrol-'+p.id,
+          name: utils.getRandomName(),
           x: p.x,
           y: p.y,
           population: 2
@@ -390,16 +408,55 @@ function updateObjectsInRange() {
 
 function showCommDialog(ship) {
   paused = true;
-  commsDialog.find('#comms-title').text(ship.name);
-  commsDialog.find('#comms-text').text('Hello asdf');
-  commsDialog.find('#comms-action-button').text('Buy stuff');
-  commsDialog.find('#comms-action-button-desc').text('Costs 5000');
-  commsDialog.find('#comms-close-button').text('Close').on('click', () => {
-    commsDialog.hide();
-    commsList.show();
-    paused = false;
-  });
+  if (ship.type === 'ship') {
+    commsDialog.find('#comms-title').text('Message from: ' + ship.name);
+    commsDialog.find('#comms-text').text(
+      (Math.random() < 0.5 ? `Good to see you, ${playerName}! ` : 'Hey, are you that radio guy? ') +
+      `I'm shipping cargo between ${ship.targetID} and ${ship.sourceID}. ` +
+      'If you want, for a small fee I wouldn\'t mind carrying a small relay for your broadcast.'
+    );
+    commsDialog.find('#comms-action-button').text('Install relay').on('click', () => {
+      if (player.money >= 5000) {
+        player.money -= 5000;
+        ship.hasRelay = true;
+      } else {
+        // errorSound.play();
+      }
+      closeCommsDialog();
+    });
+    commsDialog.find('#comms-action-button-desc').text('Costs 5000');
+  } else {
+    // patrol
+    const planetID = ship.id.split('patrol-').join('');
+    commsDialog.find('#comms-title').text('Message from: Officer ' + ship.name.split(' ').pop());
+    commsDialog.find('#comms-text').text(
+      `You are in breach of the planetary sphere of ${planetID}. ` +
+      `Charges are illegal entry and civilian frequency broadcasting without a permit. ` +
+      'Please stand by for boarding and inspection.'
+    );
+    commsDialog.find('#comms-action-button').text('Bribe').on('click', () => {
+      if (player.money >= 40000) {
+        player.money -= 40000;
+        utils.removeItem(mapObjects, ship);
+        const planet = getObject(planetID);
+        planet.hasPatrol = false;
+        planet.bribed = true;
+      } else {
+        // errorSound.play();
+      }
+      closeCommsDialog();
+    });
+    commsDialog.find('#comms-action-button-desc').text('Costs 40 000');
+  }
+
+  commsDialog.find('#comms-close-button').text('Close').on('click', closeCommsDialog);
   commsDialog.show();
+}
+
+function closeCommsDialog() {
+  commsDialog.hide();
+  commsList.show();
+  paused = false;
 }
 
 function updateHeader() {
