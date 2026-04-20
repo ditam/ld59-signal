@@ -76,6 +76,22 @@ const utils = {
     return array[Math.floor(Math.random() * array.length)];
   },
 
+  getRandomName: function() {
+    let name = '';
+    if (Math.random() < 0.3) {
+      name += 'Captain ';
+    }
+    name+=utils.getRandomItem([
+      'Joe', 'Rocco', 'Bert', 'Tuco', 'Emiliano', 'Sal', 'Poe', 'Bud', 'Mog',
+      'Mos', 'Tim', 'Riff', 'Tanaka', 'Yv', 'Bo'
+    ]);
+    name+=' ' + utils.getRandomItem([
+      'Black', 'Carr', 'Dim', 'Sprowles', 'Dandy', 'Roccino', 'Tang', 'Zapp',
+      'Elm', 'Def', 'Spaceman', 'Kenobi', 'Eggert'
+    ]);
+    return name;
+  },
+
   getTargetVector: function(object, target) {
     // returns a unit vector pointing from object to target
     const dist = utils.dist(object, target);

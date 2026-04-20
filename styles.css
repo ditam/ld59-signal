@@ -1,6 +1,8 @@
 body {
   background-color: #eee;
 
+  color: white;
+
   font-weight: 400;
   font-style: normal;
 
@@ -30,6 +32,7 @@ body {
 #debug-container {
   position: absolute;
   top: 510px;
+  color: black;
 }
 
 #header {
@@ -64,8 +67,25 @@ body {
   position: absolute;
   top: 60px;
   right: 10px;
-  /* fill from JS and there wont be a need for these */
-  width: 100px;
-  height: 200px;
-  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.comms-entry {
+  border: 1px solid white;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  padding: 3px;
+  cursor: pointer;
+}
+
+.comms-entry:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+#comms-dialog {
+  position: absolute;
+  box-sizing: border-box;
+  /* needs to stay 0, 0 to block scrolling */
+  top: 0;
+  left: 0;
+  padding: 128px;
 }

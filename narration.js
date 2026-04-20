@@ -19,6 +19,11 @@ export default {
   init: function(_container) {
     container = _container;
   },
+  clearCurrent: function() {
+    container.empty();
+    clearTimeout(timeout);
+    clearTimeout(emptyTimeout);
+  },
   show: function(id, param) {
     console.assert(container, 'Missing container - maybe narration module was not initialized?');
     console.assert(narrations[id], 'Unknown narration id: ', id);

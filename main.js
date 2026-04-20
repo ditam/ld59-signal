@@ -73,6 +73,15 @@ let mapObjects = [];
     y: 210,
     population: 7000
   });
+  // test ship to trigger comms list
+  mapObjects.push({
+    type: 'ship',
+    id: 'test-ship',
+    x: 880,
+    y: 750,
+    population: 30,
+    name: utils.getRandomName()
+  });
   console.assert(mapObjects.filter(o=>o.type === 'planet').length > 1, 'Invalid planet list - too short for source randomization.');
   const planetIDs = mapObjects.filter(o=>o.type === 'planet').map(o=>o.id);
   for (let i=0; i<10; i++) {
@@ -84,6 +93,7 @@ let mapObjects = [];
     mapObjects.push({
       type: 'ship',
       id: utils.getNewID(),
+      name: utils.getRandomName(),
       // TODO: place around source instead of random
       x: utils.getRandomInt(constants.MAP_WIDTH),
       y: utils.getRandomInt(constants.MAP_HEIGHT),
@@ -197,7 +207,12 @@ function applyMovements() {
   });
 }
 
+let paused = false;
 function drawFrame(timestamp) {
+  if (paused) {
+    requestAnimationFrame(drawFrame);
+    return;
+  }
   const t0 = performance.now();
   frameCount++;
 
@@ -323,7 +338,7 @@ function updateObjectsInRange() {
   const idsInRange = objectsInRange.map(o => o.id).sort();
 
   if (!utils.arraysEqual(idsInRange_old, idsInRange)) { // list has changed
-    console.log('-- new comms list:', objectsInRange);
+    //console.log('-- new comms list:', objectsInRange);
     // update planetary patrols
     objectsInRange.filter(o=>o.type==='planet').forEach(p=>{
       if (!p.hasPatrol) {
@@ -349,15 +364,42 @@ function updateObjectsInRange() {
 
     commsList.empty();
     // TODO: add other object types
-    objectsInRange.filter(o=>o.type === 'patrol').forEach(patrol => {
+    /*objectsInRange.filter(o=>o.type === 'patrol' || o.type === 'ship').forEach(o => {
       const entry = $('<div>');
       entry.addClass('comms-entry');
-      entry.text(patrol.id);
+      entry.text(o.id);
       entry.appendTo(commsList);
+    });*/
+
+    // FIXME: static list for testing
+    mapObjects.filter(o=>o.type === 'patrol' || o.type === 'ship').forEach(o => {
+      const entry = $('<div>');
+      entry.addClass('comms-entry');
+      entry.text(o.name);
+      entry.appendTo(commsList);
+      entry.on('click', ()=> {
+        commsList.hide();
+        narration.clearCurrent();
+        showCommDialog(o);
+      });
     });
   }
 
   idsInRange_old = idsInRange;
+}
+
+function showCommDialog(ship) {
+  paused = true;
+  commsDialog.find('#comms-title').text(ship.name);
+  commsDialog.find('#comms-text').text('Hello asdf');
+  commsDialog.find('#comms-action-button').text('Buy stuff');
+  commsDialog.find('#comms-action-button-desc').text('Costs 5000');
+  commsDialog.find('#comms-close-button').text('Close').on('click', () => {
+    commsDialog.hide();
+    commsList.show();
+    paused = false;
+  });
+  commsDialog.show();
 }
 
 function updateHeader() {
@@ -379,7 +421,7 @@ function calculateCoverage() {
 }
 
 let moneyCounter, coverageCounter;
-let commsList;
+let commsList, commsDialog;
 let songs, sounds;
 $(document).ready(function() {
   //songs = [
@@ -410,6 +452,12 @@ $(document).ready(function() {
   commsList = $('#comms-list');
   $('#comms-button').on('click', () => {
     commsList.toggle();
+  });
+
+  commsDialog = $('#comms-dialog').hide();
+  commsDialog.css({
+    width: constants.VIEWPORT_WIDTH + 'px',
+    height: constants.VIEWPORT_HEIGHT + 'px'
   });
 
   ctx = canvas.getContext('2d');
