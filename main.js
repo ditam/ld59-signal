@@ -52,15 +52,6 @@ console.assert(viewport.y + constants.VIEWPORT_HEIGHT <= constants.MAP_HEIGHT, '
 let mapObjects = [];
 
 (function generateMapObjects() {
-  for (let i=0; i<10; i++) {
-    mapObjects.push({
-      type: 'ship',
-      id: utils.getNewID(),
-      x: utils.getRandomInt(constants.MAP_WIDTH),
-      y: utils.getRandomInt(constants.MAP_HEIGHT),
-      population: utils.getRandomInt(1000)
-    });
-  }
   mapObjects.push({
     type: 'planet',
     id: 'Dagon',
@@ -82,6 +73,25 @@ let mapObjects = [];
     y: 210,
     population: 7000
   });
+  console.assert(mapObjects.filter(o=>o.type === 'planet').length > 1, 'Invalid planet list - too short for source randomization.');
+  const planetIDs = mapObjects.filter(o=>o.type === 'planet').map(o=>o.id);
+  for (let i=0; i<10; i++) {
+    const targetID = utils.getRandomItem(planetIDs);
+    let sourceID;
+    do {
+      sourceID = utils.getRandomItem(planetIDs);
+    } while (targetID === sourceID);
+    mapObjects.push({
+      type: 'ship',
+      id: utils.getNewID(),
+      // TODO: place around source instead of random
+      x: utils.getRandomInt(constants.MAP_WIDTH),
+      y: utils.getRandomInt(constants.MAP_HEIGHT),
+      population: utils.getRandomInt(1000),
+      targetID: targetID,
+      sourceID: sourceID
+    });
+  }
   console.log('map:', mapObjects);
 })();
 
@@ -170,11 +180,18 @@ function applyMovements() {
         narration.show('patrol-intercept', planetID);
       }
     } else {
-      // other ships move towards optional targets
-      if (o.target) {
-        const vector = utils.getTargetVector(o, o.target);
+      // other ships move towards targets
+      if (o.targetID) {
+        const target = getObject(o.targetID);
+        const vector = utils.getTargetVector(o, target);
         o.x += vector.dX * constants.CARGO_SPEED;
         o.y += vector.dY * constants.CARGO_SPEED;
+        // turn back if reached
+        if (utils.dist(o, target) < constants.CARGO_SPEED * 3) {
+          const tmp = o.targetID;
+          o.targetID = o.sourceID;
+          o.sourceID = tmp;
+        }
       }
     }
   });
@@ -405,7 +422,7 @@ $(document).ready(function() {
   // TODO: replace placeholder name
   narration.show('start-game', 'Test Name');
 
-  canvas.addEventListener('mousemove', event => {
+  narrationContainer.get(0).addEventListener('mousemove', event => {
     mouse.x = event.offsetX;
     mouse.y = event.offsetY;
 
