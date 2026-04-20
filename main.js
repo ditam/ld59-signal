@@ -80,6 +80,15 @@ let mapObjects = [];
     y: 210,
     population: 7000
   });
+  mapObjects.push({
+    type: 'moon',
+    id: 'Echnia',
+    name: 'Echnia name',
+    orbits: 'Dagon',
+    x: 540,
+    y: 200,
+    population: 1400
+  });
   // test ship to trigger comms list
   mapObjects.push({
     type: 'ship',
@@ -162,7 +171,7 @@ const mouse = {
   y: constants.VIEWPORT_HEIGHT / 2
 };
 
-function applyMovements() {
+function applyMovements(timestamp) {
   // player movement
   if (player.target) {
     // move player towards target
@@ -182,6 +191,16 @@ function applyMovements() {
       player.y += vector.dY * player.speed;
     }
   }
+
+  // moon movement
+  mapObjects.filter(o=>o.type === 'moon').forEach(m => {
+    const time = timestamp/(75 * 1000); // total orbit duration
+    const moonDX = Math.sin(time%2*Math.PI) * constants.MOON_ORBIT_SIZE;
+    const moonDY = Math.cos(time%2*Math.PI) * constants.MOON_ORBIT_SIZE;
+    const planet = getObject(m.orbits);
+    m.x = planet.x + moonDX;
+    m.y = planet.y + moonDY;
+  });
 
   // other ships movement
   mapObjects.filter(o=>o.type === 'patrol' || o.type === 'ship').forEach(o => {
@@ -248,7 +267,7 @@ function drawFrame(timestamp) {
   ctx.restore();
 
   // apply player and ship movements
-  applyMovements();
+  applyMovements(timestamp);
 
   // map objects
   ctx.save();
@@ -256,11 +275,13 @@ function drawFrame(timestamp) {
     const size = o.type === 'planet'? 50 : 10;
     const type2Color = {
       planet: 'gray',
+      moon: 'red',
       ship: 'black',
       patrol: 'blue'
     };
     ctx.fillStyle = type2Color[o.type];
     ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+
     // ship relay marker
     if (o.type === 'ship' && o.hasRelay) {
       ctx.save();
