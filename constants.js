@@ -16,5 +16,6 @@ export default {
   // gameplay params
   INITIAL_RANGE: 120,
   INITIAL_SPEED: 1,
-  MIN_TARGET_DIST: 50
+  MIN_TARGET_DIST: 50,
+  PLANETARY_ZONE_SIZE: 120
 };

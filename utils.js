@@ -76,6 +76,12 @@ export default {
     return array[Math.floor(Math.random() * array.length)];
   },
 
+  removeItem: function (array, item) {
+    const i = array.indexOf(item);
+    console.assert(i > -1, 'Remove target object not found in array', item);
+    array.splice(i, 1);
+  },
+
   sum: function(array) {
     return array.reduce((partialSum, a) => partialSum + a, 0);
   }

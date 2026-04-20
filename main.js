@@ -8,8 +8,8 @@ const maxOffsetX = constants.MAP_WIDTH - constants.VIEWPORT_WIDTH;
 const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
 
 const player = {
-  x: 530,
-  y: 610,
+  x: 900,
+  y: 750,
   money: 17,
   speed: constants.INITIAL_SPEED,
   range: constants.INITIAL_RANGE
@@ -38,14 +38,43 @@ let mapObjects = [];
 (function generateMapObjects() {
   for (let i=0; i<10; i++) {
     mapObjects.push({
+      type: 'ship',
       id: utils.getNewID(),
       x: utils.getRandomInt(constants.MAP_WIDTH),
       y: utils.getRandomInt(constants.MAP_HEIGHT),
       population: utils.getRandomInt(1000)
     });
   }
+  mapObjects.push({
+    type: 'planet',
+    id: 'dagon',
+    x: 540,
+    y: 600,
+    population: 200
+  });
+  mapObjects.push({
+    type: 'planet',
+    id: 'dimidium',
+    x: 820,
+    y: 350,
+    population: 3000
+  });
+  mapObjects.push({
+    type: 'planet',
+    id: 'talmos',
+    x: 200,
+    y: 210,
+    population: 7000
+  });
   console.log('map:', mapObjects);
 })();
+
+function getObject(id) {
+  const filtered = mapObjects.filter(o=>o.id==id);
+  console.assert(filtered.length > 0, 'No object found for ID: ' + id);
+  console.assert(filtered.length < 2, 'Multiple objects found with ID: '+ id);
+  return filtered[0];
+}
 
 const bgStars = [];
 let startfieldInitialized = false;
@@ -120,9 +149,25 @@ function drawFrame(timestamp) {
 
   // map objects
   ctx.save();
-  ctx.fillStyle = 'black';
   mapObjects.forEach(o => {
-    ctx.fillRect(o.x - viewport.x, o.y - viewport.y, 10, 10);
+    const size = o.type === 'planet'? 50 : 10;
+    const type2Color = {
+      planet: 'gray',
+      ship: 'black',
+      patrol: 'blue'
+    };
+    ctx.fillStyle = type2Color[o.type];
+    ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+    // planetary zone marker
+    if (o.type === 'planet') {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(224, 100, 100, 0.6)';
+      ctx.beginPath();
+      ctx.setLineDash([15, 5]);
+      ctx.arc(o.x - viewport.x, o.y - viewport.y, constants.PLANETARY_ZONE_SIZE, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.restore();
+    }
   });
   ctx.restore();
 
@@ -148,16 +193,16 @@ function drawFrame(timestamp) {
     }
   }
 
-  if (player.target) {
-    // NB: separate check, target might have been removed above
-    // draw target marker
+  // draw target marker
+  if (player.target) {  // NB: separate check, target might have been removed above
     ctx.save();
-    ctx.strokeStyle = 'rgba(200, 70, 70, 0.5)';
+    ctx.strokeStyle = 'rgba(114, 218, 168, 0.68)';
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.setLineDash([5, 15]);
-    ctx.moveTo(player.x - viewport.x, player.y - viewport.y);
-    ctx.lineTo(player.target.x - viewport.x, player.target.y - viewport.y);
+    // draw from target, other direction looks like it's being pushed into a hole
+    ctx.moveTo(player.target.x - viewport.x, player.target.y - viewport.y);
+    ctx.lineTo(player.x - viewport.x, player.y - viewport.y);
     ctx.stroke();
     ctx.restore();
   }
@@ -181,7 +226,7 @@ function drawFrame(timestamp) {
 
   // update UI if needed
   updateHeader();
-  updateCommsList();
+  updateObjectsInRange();
 
   // perf check
   const t1 = performance.now();
@@ -192,16 +237,50 @@ function drawFrame(timestamp) {
 }
 
 let idsInRange_old = [];
-function updateCommsList() {
+function updateObjectsInRange() {
+  // keeps track of objects in range, dispatches patrols, updates commsList in DOM
   const objectsInRange = mapObjects.filter(o => {
-    return utils.dist(player, o) < player.range;
+    return utils.dist(player, o) <= player.range;
+  });
+  const objectsNotInRange = mapObjects.filter(o => {
+    return utils.dist(player, o) > player.range;
   });
 
   const idsInRange = objectsInRange.map(o => o.id).sort();
 
-  if (!utils.arraysEqual(idsInRange_old, idsInRange)) {
+  if (!utils.arraysEqual(idsInRange_old, idsInRange)) { // list has changed
     console.log('-- new comms list:', objectsInRange);
-    // TODO: generate list in DOM
+    // update planetary patrols
+    objectsInRange.filter(o=>o.type==='planet').forEach(p=>{
+      if (!p.hasPatrol) {
+        const patrol = {
+          type: 'patrol',
+          id: 'patrol-'+p.id,
+          x: p.x,
+          y: p.y,
+          population: 2
+        };
+        mapObjects.push(patrol);
+        objectsInRange.push(patrol);
+        p.hasPatrol = true;
+      }
+    });
+    objectsNotInRange.filter(o=>o.type==='planet').forEach(p=>{
+      if (p.hasPatrol) {
+        const patrol = getObject('patrol-'+p.id);
+        utils.removeItem(mapObjects, patrol);
+        p.hasPatrol = false;
+      }
+    });
+
+    commsList.empty();
+    // TODO: add other object types
+    objectsInRange.filter(o=>o.type === 'patrol').forEach(patrol => {
+      const entry = $('<div>');
+      entry.addClass('comms-entry');
+      entry.text(patrol.id);
+      entry.appendTo(commsList);
+    });
   }
 
   idsInRange_old = idsInRange;
