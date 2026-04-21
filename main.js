@@ -353,16 +353,7 @@ function updateObjectsInRange() {
     });
 
     commsList.empty();
-    // TODO: add other object types
-    /*objectsInRange.filter(o=>o.type === 'patrol' || o.type === 'ship').forEach(o => {
-      const entry = $('<div>');
-      entry.addClass('comms-entry');
-      entry.text(o.id);
-      entry.appendTo(commsList);
-    });*/
-
-    // FIXME: static list for testing
-    mapObjects.filter(o=>o.type === 'patrol' || o.type === 'ship' || o.type === 'moon').forEach(o => {
+    objectsInRange.filter(o=>o.type === 'patrol' || o.type === 'ship' || o.type === 'moon').forEach(o => {
       const entry = $('<div>');
       entry.addClass('comms-entry');
       entry.text(o.name);

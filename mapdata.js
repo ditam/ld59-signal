@@ -36,15 +36,6 @@ function generateMapObjects(mapObjects, imgAssets) {
     y: 200,
     population: 1400
   });
-  // test ship to trigger comms list
-  mapObjects.push({
-    type: 'ship',
-    id: 'test-ship',
-    x: 880,
-    y: 750,
-    population: 30,
-    name: utils.getRandomName()
-  });
   console.assert(mapObjects.filter(o=>o.type === 'planet').length > 1, 'Invalid planet list - too short for source randomization.');
   const planetIDs = mapObjects.filter(o=>o.type === 'planet').map(o=>o.id);
   for (let i=0; i<10; i++) {
@@ -65,6 +56,7 @@ function generateMapObjects(mapObjects, imgAssets) {
       sourceID: sourceID
     });
   }
+  // TODO: validate map object structures
   console.log('map:', mapObjects);
 }
 
