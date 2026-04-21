@@ -13,6 +13,10 @@ const narrations = {
     'The kind security officers of %% have towed us into neutral space and confiscated all of our credits. ' +
     'Our crime? Trying to bring you the finest Earthly tunes and news coverage without censorship. ' +
     'Tell your friends to tune in.'
+  ),
+  'nowhere': (
+    'We have just arrived to the middle of nowhere. We saw that there was nothing here, but we still came. ' +
+    'Because it\'s about the journey, not the destination... ... This is the signal of Radio Free Earth.'
   )
 };
 export default {

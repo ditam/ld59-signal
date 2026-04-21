@@ -20,6 +20,11 @@ const player = {
 // TODO: collect at beginning
 let playerName = 'Test Name';
 
+const nowhere = {
+  x: 600,
+  y: 1400
+};
+
 console.assert(constants.INITIAL_RANGE < constants.PLANETARY_ZONE_SIZE, 'Suspicious initial ranges, player >= planetary');
 
 window.isDebug = location && location.hostname==='localhost';
@@ -140,6 +145,11 @@ function applyMovements(timestamp) {
       const vector = utils.getTargetVector(player, t);
       player.x += vector.dX * player.speed;
       player.y += vector.dY * player.speed;
+    }
+
+    if (utils.dist(nowhere, player) < 200) {
+      narration.show('nowhere');
+      broadcastSound.play();
     }
   }
 
