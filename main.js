@@ -239,7 +239,18 @@ function drawFrame(timestamp) {
       ctx.arc(o.x - viewport.x, o.y - viewport.y, size, 0, Math.PI*2);
       ctx.fill();
     } else if (o.type === 'ship') {
-      ctx.drawImage(imgAssets.shipImg, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+      ctx.save();
+        // TODO: extract rotation into util or shared between ships and player
+        ctx.translate(o.x-viewport.x, o.y-viewport.y);
+        const vector = utils.getTargetVector(o, getObject(o.targetID));
+        let angle = Math.atan(vector.dY/vector.dX) + Math.PI/2;
+        if (vector.dX < 0) {
+          angle -= Math.PI;
+        }
+        ctx.rotate(angle);
+        ctx.translate(-(o.x-viewport.x), -(o.y-viewport.y));
+        ctx.drawImage(imgAssets.shipImg, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+      ctx.restore();
     } else {
       ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
     }
