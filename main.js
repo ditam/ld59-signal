@@ -67,6 +67,9 @@ console.assert(viewport.y + constants.VIEWPORT_HEIGHT <= constants.MAP_HEIGHT, '
 
 let mapObjects = [];
 maputils.loadMapData(mapObjects, imgAssets);
+if (window.isDebug) {
+  window.mapObjects = mapObjects;
+}
 
 function getObject(id) {
   const filtered = mapObjects.filter(o=>o.id==id);
@@ -233,7 +236,7 @@ function drawFrame(timestamp) {
       ctx.drawImage(o.img, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
     } else if (o.type === 'moon') {
       ctx.beginPath();
-      ctx.arc(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, 0, Math.PI*2);
+      ctx.arc(o.x - viewport.x, o.y - viewport.y, size, 0, Math.PI*2);
       ctx.fill();
     } else if (o.type === 'ship') {
       ctx.drawImage(imgAssets.shipImg, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
