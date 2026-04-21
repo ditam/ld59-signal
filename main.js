@@ -222,7 +222,7 @@ function drawFrame(timestamp) {
     const size = o.type === 'planet'? 64 : 10;
     const type2Color = {
       planet: 'gray',
-      moon: 'red',
+      moon: 'gray',
       ship: 'black',
       patrol: 'blue'
     };
