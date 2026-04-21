@@ -540,12 +540,63 @@ let moneyCounter, coverageCounter;
 let commsList, commsDialog;
 let songs, sounds;
 $(document).ready(function() {
-  //songs = [
-  //  new Audio('bgMusic1.mp3')
-  //];
-  //sounds = [
-  //  new Audio('error.mp3'),
-  //];
+  songs = [
+    new Audio('sounds/bgMusic0.mp3')
+  ];
+  sounds = [
+    new Audio('sounds/error.mp3'),
+    new Audio('sounds/click.ogg'),
+    new Audio('sounds/casette.mp3'),
+    new Audio('sounds/broadcast-start.mp3'),
+    new Audio('sounds/alarm.mp3'),
+  ];
+
+  const cover = $('#cover-image');
+  cover.css({
+    width: constants.VIEWPORT_WIDTH + 'px',
+    height: constants.VIEWPORT_HEIGHT + 'px'
+  });
+  cover.find('#start-button').click(function() {
+    playerName = $('#name-input').val() || 'Guy';
+    narration.show('start-game', playerName);
+    cover.remove();
+    songs[0].play();
+    songs[0].addEventListener('ended', function() {
+      songs[0].currentTime = 0;
+      songs[0].play();
+      // TODO: once we have multiple songs:
+      //this.pause();
+      //songs[1].play();
+      //songs[1].addEventListener('ended', function() {
+      //  songs[1].currentTime = 0;
+      //  songs[1].play();
+      //}, false);
+    }, false);
+  });
+
+  let audioLoadCount = 0;
+  let audioCountTotal = songs.length + sounds.length;
+  $('#loadCountTotal').text(audioCountTotal);
+  function countWhenLoaded(audioElement) {
+    audioElement.addEventListener('canplaythrough', function() {
+      audioLoadCount++;
+      $('#loadCount').text(audioLoadCount);
+      if (audioLoadCount === audioCountTotal) {
+        $('#loader').html('Loading completed.');
+        if ($('#name-input').val().length > 0) {
+          $('#start-button').show();
+        }
+      }
+    }, false);
+  }
+  songs.forEach(countWhenLoaded);
+  sounds.forEach(countWhenLoaded);
+
+  $('#name-input').on('change', ()=> {
+    if (audioLoadCount === audioCountTotal) {
+      $('#start-button').show();
+    }
+  });
 
   const canvas = document.getElementById('main-canvas');
 
@@ -581,10 +632,6 @@ $(document).ready(function() {
   ctx.fillStyle = 'black';
   ctx.strokeStyle = 'black';
   ctx.lineWidth = 1;
-
-  // TODO: full intro setup
-  // TODO: replace placeholder name
-  narration.show('start-game', 'Test Name');
 
   narrationContainer.get(0).addEventListener('mousemove', event => {
     mouse.x = event.offsetX;

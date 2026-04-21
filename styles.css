@@ -132,3 +132,24 @@ body {
 #comms-action-button-desc {
   color: gray;
 }
+
+#cover-image {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding-top: 200px;
+}
+
+#start-button {
+  display: none;
+  cursor: pointer;
+  padding: 24px;
+}
+
+#loader {
+  margin: 24px;
+}
