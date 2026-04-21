@@ -416,17 +416,24 @@ function showCommDialog(o) {
     commsDialog.find('#comms-action-button-desc').text('Costs 5000');
   } else if (o.type === 'patrol') {
     const planetID = o.id.split('patrol-').join('');
+    const planet = getObject(planetID);
     commsDialog.find('#comms-title').text('Message from: Officer ' + o.name.split(' ').pop());
     commsDialog.find('#comms-text').text(
       `You are in breach of the planetary sphere of ${planetID}. ` +
       `Charges are illegal entry and civilian frequency broadcasting without a permit. ` +
       'Please stand by for boarding and inspection.'
     );
+    if (planet.banBribes) {
+      commsDialog.find('#comms-action-button').hide();
+      commsDialog.find('#comms-action-button-desc').hide();
+    } else {
+      commsDialog.find('#comms-action-button').show();
+      commsDialog.find('#comms-action-button-desc').show();
+    }
     commsDialog.find('#comms-action-button').text('Bribe').on('click', () => {
       if (player.money >= 40000) {
         player.money -= 40000;
         utils.removeItem(mapObjects, o);
-        const planet = getObject(planetID);
         planet.hasPatrol = false;
         planet.bribed = true;
         clickSound.play();
@@ -444,7 +451,7 @@ function showCommDialog(o) {
       `Hey ${playerName}, this is ${o.name} from the ${readableSubtype} orbiting ${o.orbits}. ` +
       (o.subtype === 'basic'?
         `I like your channel. If you cover the costs, feel free to set up a powerful relay here.` :
-        `We can tinker with your Dodo a bit to make it perform better.`)
+        `We can tinker with your Dodo a bit to make it perform better. Heck, we\'ll even rebroadcast your signal.`)
     );
     let buttonByType = {
       'basic': 'Install relay',
@@ -459,9 +466,11 @@ function showCommDialog(o) {
         }
         if (o.subtype === 'station-speed') {
           player.speed += 0.5;
+          o.hasRelay = true;
         }
         if (o.subtype === 'station-range') {
           player.range += 20;
+          o.hasRelay = true;
         }
         clickSound.play();
       } else {

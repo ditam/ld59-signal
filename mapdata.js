@@ -8,7 +8,8 @@ function generateMapObjects(mapObjects, imgAssets) {
     img: imgAssets.planetImg2,
     x: 440,
     y: 600,
-    population: utils.getRandomInt(4000, 6000)
+    population: utils.getRandomInt(4000, 6000),
+    banBribes: true,
   });
   mapObjects.push({
     type: 'planet',
