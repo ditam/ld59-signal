@@ -25,13 +25,13 @@ body {
   /* width and height set from JS to match canvas */
   box-sizing: border-box;
   color: white;
-  padding: 120px;
+  padding: 400px;
   line-height: 1.5em;
 }
 
 #debug-container {
   position: absolute;
-  top: 510px;
+  top: 1020px;
   color: black;
 }
 
@@ -87,7 +87,7 @@ body {
   /* needs to stay 0, 0 to block scrolling */
   top: 0;
   left: 0;
-  padding: 128px;
+  padding: 400px;
   line-height: 1.3em;
 }
 

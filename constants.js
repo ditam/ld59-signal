@@ -1,13 +1,14 @@
 export default {
   // map and viewport size
-  MAP_HEIGHT: 800,
-  MAP_WIDTH: 1100,
-  VIEWPORT_HEIGHT: 500,
-  VIEWPORT_WIDTH: 700,
+  MAP_WIDTH: 3000,
+  MAP_HEIGHT: 2000,
+  VIEWPORT_WIDTH: 1920,
+  VIEWPORT_HEIGHT: 1080,
 
   // UI sizing and timing params
-  PLAYER_SIZE: 64,
-  TYPING_CHAR_DELAY: 25, // NB: bigger means slower
+  PLAYER_SIZE: 128,
+  PLANET_SIZE: 128,
+  TYPING_CHAR_DELAY: 35, // NB: bigger means slower
 
   // debug grid sizing
   GRID_CELL_WIDTH: 100,
@@ -18,11 +19,11 @@ export default {
   SCROLL_STEP_SIZE: 10,
 
   // gameplay params
-  INITIAL_RANGE: 120,
+  INITIAL_RANGE: 160,
   INITIAL_SPEED: 1,
   MIN_TARGET_DIST: 50,
-  PLANETARY_ZONE_SIZE: 140,
-  MOON_ORBIT_SIZE: 180,
+  PLANETARY_ZONE_SIZE: 220,
+  MOON_ORBIT_SIZE: 190,
   PATROL_SPEED: 1.5,
   PATROL_INTERCEPT_RANGE: 20,
   CARGO_SPEED: 0.5,

@@ -54,7 +54,7 @@ export default {
         emptyTimeout = setTimeout(() => {
           container.empty();
           emptyTimeout = null;
-        }, 1500);
+        }, 4000); // TODO: const
       }
     })();
   }

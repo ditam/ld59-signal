@@ -12,7 +12,7 @@ const maxOffsetY = constants.MAP_HEIGHT - constants.VIEWPORT_HEIGHT;
 const player = {
   x: 0,
   y: 0,
-  money: 17,
+  money: 0,
   speed: constants.INITIAL_SPEED,
   range: constants.INITIAL_RANGE
 };
@@ -35,12 +35,12 @@ const viewport = {
 };
 
 function resetProgress() {
-  player.x = 900;
-  player.y = 750;
+  player.x = 2100;
+  player.y = 1400;
   player.money = 0;
   delete player.target;
-  viewport.x = 400;
-  viewport.y = 300;
+  viewport.x = 1080;
+  viewport.y = 920;
 
   if (isDebug) {
     player.money = 120000;
@@ -51,6 +51,7 @@ resetProgress();
 // img assets
 const imgAssets = {
   dodoImg: $('<img>').attr('src', 'img/the-dodo.png').get(0),
+  shipImg: $('<img>').attr('src', 'img/ship.png').get(0),
   planetImg0: $('<img>').attr('src', 'img/planet-0.png').get(0),
   planetImg1: $('<img>').attr('src', 'img/planet-1.png').get(0),
   planetImg2: $('<img>').attr('src', 'img/planet-2.png').get(0),
@@ -79,7 +80,7 @@ let startfieldInitialized = false;
 (function generateStarfield() {
   console.assert(!startfieldInitialized, 'starfield already initialized');
   startfieldInitialized = true;
-  for (let i=0; i<300; i++) {
+  for (let i=0; i<1400; i++) {
     const b = utils.getRandomInt(0, 185); // brightness
     const dR = utils.getRandomInt(0, 70);
     const dG = utils.getRandomInt(0, 70);
@@ -219,17 +220,23 @@ function drawFrame(timestamp) {
   // map objects
   ctx.save();
   mapObjects.forEach(o => {
-    const size = o.type === 'planet'? 64 : 10;
+    const size = o.type === 'planet'? constants.PLANET_SIZE : 24;
     const type2Color = {
       planet: 'gray',
       moon: 'gray',
-      ship: 'black',
+      ship: 'gray',
       patrol: 'blue'
     };
     ctx.fillStyle = type2Color[o.type];
 
     if (o.type === 'planet') {
       ctx.drawImage(o.img, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+    } else if (o.type === 'moon') {
+      ctx.beginPath();
+      ctx.arc(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, 0, Math.PI*2);
+      ctx.fill();
+    } else if (o.type === 'ship') {
+      ctx.drawImage(imgAssets.shipImg, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
     } else {
       ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
     }
