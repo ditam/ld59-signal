@@ -1,5 +1,6 @@
 
 import constants from './constants.js';
+import maputils from './mapdata.js';
 import narration from './narration.js';
 import utils from './utils.js';
 
@@ -48,12 +49,14 @@ function resetProgress() {
 resetProgress();
 
 // img assets
-const dodoImg = $('<img>').attr('src', 'img/the-dodo.png').get(0);
-const planetImg0 = $('<img>').attr('src', 'img/planet-0.png').get(0);
-const planetImg1 = $('<img>').attr('src', 'img/planet-1.png').get(0);
-const planetImg2 = $('<img>').attr('src', 'img/planet-2.png').get(0);
-const planetImg3 = $('<img>').attr('src', 'img/planet-3.png').get(0);
-const planetImg4 = $('<img>').attr('src', 'img/planet-4.png').get(0);
+const imgAssets = {
+  dodoImg: $('<img>').attr('src', 'img/the-dodo.png').get(0),
+  planetImg0: $('<img>').attr('src', 'img/planet-0.png').get(0),
+  planetImg1: $('<img>').attr('src', 'img/planet-1.png').get(0),
+  planetImg2: $('<img>').attr('src', 'img/planet-2.png').get(0),
+  planetImg3: $('<img>').attr('src', 'img/planet-3.png').get(0),
+  planetImg4: $('<img>').attr('src', 'img/planet-4.png').get(0)
+};
 
 // sanity checks for initial setup
 console.assert(player.x < constants.MAP_WIDTH, 'Invalid player x0');
@@ -62,73 +65,7 @@ console.assert(viewport.x + constants.VIEWPORT_WIDTH <= constants.MAP_WIDTH, 'In
 console.assert(viewport.y + constants.VIEWPORT_HEIGHT <= constants.MAP_HEIGHT, 'Invalid viewport y0 ' + viewport.y);
 
 let mapObjects = [];
-
-(function generateMapObjects() {
-  mapObjects.push({
-    type: 'planet',
-    id: 'Dagon',
-    img: planetImg0,
-    x: 540,
-    y: 600,
-    population: 200
-  });
-  mapObjects.push({
-    type: 'planet',
-    id: 'Dimidium',
-    img: planetImg2,
-    x: 820,
-    y: 350,
-    population: 3000
-  });
-  mapObjects.push({
-    type: 'planet',
-    id: 'Talmos',
-    img: planetImg4,
-    x: 200,
-    y: 210,
-    population: 7000
-  });
-  mapObjects.push({
-    type: 'moon',
-    subtype: 'basic',
-    id: 'Echnia',
-    name: 'The moon', // utils.getRandomName(),
-    orbits: 'Dagon',
-    x: 540,
-    y: 200,
-    population: 1400
-  });
-  // test ship to trigger comms list
-  mapObjects.push({
-    type: 'ship',
-    id: 'test-ship',
-    x: 880,
-    y: 750,
-    population: 30,
-    name: utils.getRandomName()
-  });
-  console.assert(mapObjects.filter(o=>o.type === 'planet').length > 1, 'Invalid planet list - too short for source randomization.');
-  const planetIDs = mapObjects.filter(o=>o.type === 'planet').map(o=>o.id);
-  for (let i=0; i<10; i++) {
-    const targetID = utils.getRandomItem(planetIDs);
-    let sourceID;
-    do {
-      sourceID = utils.getRandomItem(planetIDs);
-    } while (targetID === sourceID);
-    mapObjects.push({
-      type: 'ship',
-      id: utils.getNewID(),
-      name: utils.getRandomName(),
-      // TODO: place around source instead of random
-      x: utils.getRandomInt(constants.MAP_WIDTH),
-      y: utils.getRandomInt(constants.MAP_HEIGHT),
-      population: utils.getRandomInt(1000),
-      targetID: targetID,
-      sourceID: sourceID
-    });
-  }
-  console.log('map:', mapObjects);
-})();
+maputils.loadMapData(mapObjects, imgAssets);
 
 function getObject(id) {
   const filtered = mapObjects.filter(o=>o.id==id);
@@ -351,7 +288,7 @@ function drawFrame(timestamp) {
     }
     ctx.rotate(angle);
     ctx.translate(-(player.x-viewport.x), -(player.y-viewport.y));
-    ctx.drawImage(dodoImg, player.x - viewport.x - size/2, player.y - viewport.y - size/2, size, size);
+    ctx.drawImage(imgAssets.dodoImg, player.x - viewport.x - size/2, player.y - viewport.y - size/2, size, size);
   ctx.restore();
   ctx.fill();
   ctx.restore();
@@ -533,7 +470,7 @@ function updateHeader() {
   coverageCounter.text(`${coveredPopulation} listeners (${percentage.toFixed(2)}%)`);
 
   const ratio = coveredPopulation / totalPopulation;
-  if (ratio >= 0.1) {
+  if (ratio >= 1) {
     showVictoryScreen();
   }
 
