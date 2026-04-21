@@ -160,6 +160,7 @@ function applyMovements(timestamp) {
         resetProgress();
         const planetID = o.id.split('patrol-').join('');
         narration.show('patrol-intercept', planetID);
+        broadcastSound.play();
       }
     } else {
       // other ships move towards targets
@@ -342,6 +343,7 @@ function updateObjectsInRange() {
         mapObjects.push(patrol);
         objectsInRange.push(patrol);
         p.hasPatrol = true;
+        alarmSound.play();
       }
     });
     objectsNotInRange.filter(o=>o.type==='planet').forEach(p=>{
@@ -382,8 +384,9 @@ function showCommDialog(o) {
       if (player.money >= 5000) {
         player.money -= 5000;
         o.hasRelay = true;
+        clickSound.play();
       } else {
-        // errorSound.play();
+        errorSound.play();
       }
       closeCommsDialog();
     });
@@ -403,8 +406,9 @@ function showCommDialog(o) {
         const planet = getObject(planetID);
         planet.hasPatrol = false;
         planet.bribed = true;
+        clickSound.play();
       } else {
-        // errorSound.play();
+        errorSound.play();
       }
       closeCommsDialog();
     });
@@ -436,8 +440,9 @@ function showCommDialog(o) {
         if (o.subtype === 'station-range') {
           player.range += 20;
         }
+        clickSound.play();
       } else {
-        // errorSound.play();
+        errorSound.play();
       }
       closeCommsDialog();
     });
@@ -495,6 +500,7 @@ function showVictoryScreen() {
 let moneyCounter, coverageCounter;
 let commsList, commsDialog;
 let songs, sounds;
+let errorSound, clickSound, casetteSound, broadcastSound, alarmSound;
 $(document).ready(function() {
   songs = [
     new Audio('sounds/bgMusic0.mp3')
@@ -507,6 +513,12 @@ $(document).ready(function() {
     new Audio('sounds/alarm.mp3'),
   ];
 
+  errorSound = sounds[0];
+  clickSound = sounds[1];
+  casetteSound = sounds[2];
+  broadcastSound = sounds[3];
+  alarmSound = sounds[4];
+
   const cover = $('#cover-image');
   cover.css({
     width: constants.VIEWPORT_WIDTH + 'px',
@@ -515,6 +527,7 @@ $(document).ready(function() {
   cover.find('#start-button').click(function() {
     playerName = $('#name-input').val() || 'Guy';
     narration.show('start-game', playerName);
+    broadcastSound.play();
     cover.remove();
     songs[0].play();
     songs[0].addEventListener('ended', function() {
