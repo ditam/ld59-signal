@@ -197,4 +197,11 @@ body {
   padding-top: 200px;
   box-sizing: border-box;
   line-height: 2em;
+
+  /* allow music attributions to be copied easily */
+  user-select: text;
+}
+
+#victory-screen .spacer {
+  margin-bottom: 200px;
 }

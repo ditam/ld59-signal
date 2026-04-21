@@ -75,6 +75,7 @@ let mapObjects = [];
 maputils.loadMapData(mapObjects, imgAssets);
 if (window.isDebug) {
   window.mapObjects = mapObjects;
+  window.showVictoryScreen = showVictoryScreen;
 }
 
 function getObject(id) {
@@ -553,7 +554,9 @@ let songs, sounds;
 let errorSound, clickSound, casetteSound, broadcastSound, alarmSound;
 $(document).ready(function() {
   songs = [
-    new Audio('sounds/bgMusic0.mp3')
+    new Audio('sounds/bgMusic0.mp3'),
+    new Audio('sounds/bgMusic1.mp3'),
+    new Audio('sounds/bgMusic2.mp3'),
   ];
   sounds = [
     new Audio('sounds/error.mp3'),
@@ -578,18 +581,22 @@ $(document).ready(function() {
     playerName = $('#name-input').val() || 'Guy';
     narration.show('start-game', playerName);
     cover.remove();
-    songs[0].addEventListener('ended', function() {
-      songs[0].currentTime = 0;
-      songs[0].play();
-      // TODO: once we have multiple songs:
-      //this.pause();
-      //songs[1].play();
-      //songs[1].addEventListener('ended', function() {
-      //  songs[1].currentTime = 0;
-      //  songs[1].play();
-      //}, false);
-    }, false);
 
+    songs.forEach(function(song, i) {
+      song.addEventListener('ended', function() {
+        this.currentTime = 0;
+        playNextSong();
+      }, false);
+    });
+
+    let currentSongIndex = 0;
+    function playNextSong() {
+      currentSongIndex = (currentSongIndex + 1) % songs.length;
+      console.log('---switched to bgMusic index:', currentSongIndex);
+      songs[currentSongIndex].play();
+    }
+
+    // Timed intro sequence
     casetteSound.play();
     setTimeout(() => {
       broadcastSound.play();
