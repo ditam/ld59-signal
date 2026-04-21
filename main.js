@@ -49,6 +49,11 @@ resetProgress();
 
 // img assets
 const dodoImg = $('<img>').attr('src', 'img/the-dodo.png').get(0);
+const planetImg0 = $('<img>').attr('src', 'img/planet-0.png').get(0);
+const planetImg1 = $('<img>').attr('src', 'img/planet-1.png').get(0);
+const planetImg2 = $('<img>').attr('src', 'img/planet-2.png').get(0);
+const planetImg3 = $('<img>').attr('src', 'img/planet-3.png').get(0);
+const planetImg4 = $('<img>').attr('src', 'img/planet-4.png').get(0);
 
 // sanity checks for initial setup
 console.assert(player.x < constants.MAP_WIDTH, 'Invalid player x0');
@@ -62,6 +67,7 @@ let mapObjects = [];
   mapObjects.push({
     type: 'planet',
     id: 'Dagon',
+    img: planetImg0,
     x: 540,
     y: 600,
     population: 200
@@ -69,6 +75,7 @@ let mapObjects = [];
   mapObjects.push({
     type: 'planet',
     id: 'Dimidium',
+    img: planetImg2,
     x: 820,
     y: 350,
     population: 3000
@@ -76,6 +83,7 @@ let mapObjects = [];
   mapObjects.push({
     type: 'planet',
     id: 'Talmos',
+    img: planetImg4,
     x: 200,
     y: 210,
     population: 7000
@@ -273,7 +281,7 @@ function drawFrame(timestamp) {
   // map objects
   ctx.save();
   mapObjects.forEach(o => {
-    const size = o.type === 'planet'? 50 : 10;
+    const size = o.type === 'planet'? 64 : 10;
     const type2Color = {
       planet: 'gray',
       moon: 'red',
@@ -281,7 +289,12 @@ function drawFrame(timestamp) {
       patrol: 'blue'
     };
     ctx.fillStyle = type2Color[o.type];
-    ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+
+    if (o.type === 'planet') {
+      ctx.drawImage(o.img, o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+    } else {
+      ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
+    }
 
     // relay marker (can be moon or ship)
     if (o.hasRelay) {
