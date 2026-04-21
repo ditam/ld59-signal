@@ -82,8 +82,9 @@ let mapObjects = [];
   });
   mapObjects.push({
     type: 'moon',
+    subtype: 'basic',
     id: 'Echnia',
-    name: 'Echnia name',
+    name: 'The moon', // utils.getRandomName(),
     orbits: 'Dagon',
     x: 540,
     y: 200,
@@ -282,8 +283,8 @@ function drawFrame(timestamp) {
     ctx.fillStyle = type2Color[o.type];
     ctx.fillRect(o.x - viewport.x - size/2, o.y - viewport.y - size/2, size, size);
 
-    // ship relay marker
-    if (o.type === 'ship' && o.hasRelay) {
+    // relay marker (can be moon or ship)
+    if (o.hasRelay) {
       ctx.save();
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.beginPath();
@@ -411,7 +412,7 @@ function updateObjectsInRange() {
     });*/
 
     // FIXME: static list for testing
-    mapObjects.filter(o=>o.type === 'patrol' || o.type === 'ship').forEach(o => {
+    mapObjects.filter(o=>o.type === 'patrol' || o.type === 'ship' || o.type === 'moon').forEach(o => {
       const entry = $('<div>');
       entry.addClass('comms-entry');
       entry.text(o.name);
@@ -427,29 +428,28 @@ function updateObjectsInRange() {
   idsInRange_old = idsInRange;
 }
 
-function showCommDialog(ship) {
+function showCommDialog(o) {
   paused = true;
-  if (ship.type === 'ship') {
-    commsDialog.find('#comms-title').text('Message from: ' + ship.name);
+  if (o.type === 'ship') {
+    commsDialog.find('#comms-title').text('Message from: ' + o.name);
     commsDialog.find('#comms-text').text(
       (Math.random() < 0.5 ? `Good to see you, ${playerName}! ` : 'Hey, are you that radio guy? ') +
-      `I'm shipping cargo between ${ship.targetID} and ${ship.sourceID}. ` +
+      `I'm shipping cargo between ${o.targetID} and ${o.sourceID}. ` +
       'If you want, for a small fee I wouldn\'t mind carrying a small relay for your broadcast.'
     );
     commsDialog.find('#comms-action-button').text('Install relay').on('click', () => {
       if (player.money >= 5000) {
         player.money -= 5000;
-        ship.hasRelay = true;
+        o.hasRelay = true;
       } else {
         // errorSound.play();
       }
       closeCommsDialog();
     });
     commsDialog.find('#comms-action-button-desc').text('Costs 5000');
-  } else {
-    // patrol
-    const planetID = ship.id.split('patrol-').join('');
-    commsDialog.find('#comms-title').text('Message from: Officer ' + ship.name.split(' ').pop());
+  } else if (o.type === 'patrol') {
+    const planetID = o.id.split('patrol-').join('');
+    commsDialog.find('#comms-title').text('Message from: Officer ' + o.name.split(' ').pop());
     commsDialog.find('#comms-text').text(
       `You are in breach of the planetary sphere of ${planetID}. ` +
       `Charges are illegal entry and civilian frequency broadcasting without a permit. ` +
@@ -458,7 +458,7 @@ function showCommDialog(ship) {
     commsDialog.find('#comms-action-button').text('Bribe').on('click', () => {
       if (player.money >= 40000) {
         player.money -= 40000;
-        utils.removeItem(mapObjects, ship);
+        utils.removeItem(mapObjects, o);
         const planet = getObject(planetID);
         planet.hasPatrol = false;
         planet.bribed = true;
@@ -468,6 +468,39 @@ function showCommDialog(ship) {
       closeCommsDialog();
     });
     commsDialog.find('#comms-action-button-desc').text('Costs 40 000');
+  } else {
+    // moon
+    const readableSubtype = o.subtype === 'basic'? 'small moon': 'space station';
+    commsDialog.find('#comms-title').text('Message from: ' + o.name);
+    commsDialog.find('#comms-text').text(
+      `Hey ${playerName}, this is ${o.name} from the ${readableSubtype} orbiting ${o.orbits}. ` +
+      (o.subtype === 'basic'?
+        `I like your channel. If you cover the costs, feel free to set up a powerful relay here.` :
+        `We can tinker with your Dodo a bit to make it perform better.`)
+    );
+    let buttonByType = {
+      'basic': 'Install relay',
+      'station-speed': 'Upgrade speed',
+      'station-range': 'Upgrade range'
+    };
+    commsDialog.find('#comms-action-button').text(buttonByType[o.subtype]).on('click', () => {
+      if (player.money >= 20000) {
+        player.money -= 20000;
+        if (o.subtype === 'basic') {
+          o.hasRelay = true;
+        }
+        if (o.subtype === 'station-speed') {
+          player.speed += 0.5;
+        }
+        if (o.subtype === 'station-range') {
+          player.range += 20;
+        }
+      } else {
+        // errorSound.play();
+      }
+      closeCommsDialog();
+    });
+    commsDialog.find('#comms-action-button-desc').text('Costs 20 000');
   }
 
   commsDialog.find('#comms-close-button').text('Close').on('click', closeCommsDialog);
