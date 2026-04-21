@@ -142,6 +142,7 @@ body {
   color: white;
   text-align: center;
   padding-top: 200px;
+  box-sizing: border-box;
 }
 
 #start-button {
@@ -152,4 +153,18 @@ body {
 
 #loader {
   margin: 24px;
+}
+
+#victory-screen {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding-top: 200px;
+  box-sizing: border-box;
+  line-height: 2em;
 }

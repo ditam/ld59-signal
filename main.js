@@ -533,6 +533,10 @@ function updateHeader() {
   coverageCounter.text(`${coveredPopulation} listeners (${percentage.toFixed(2)}%)`);
 
   const ratio = coveredPopulation / totalPopulation;
+  if (ratio >= 0.1) {
+    showVictoryScreen();
+  }
+
   const earnings = Math.round(ratio * 30); // TODO: constant
   player.money += earnings;
   moneyCounter.text(`${player.money} credits`);
@@ -550,6 +554,14 @@ function calculateCoverage() {
   });
 
   return utils.sum(objectsInRangeOfAnyRelay.map(o => o.population));
+}
+
+function showVictoryScreen() {
+  $('#victory-screen').css({
+    width: constants.VIEWPORT_WIDTH + 'px',
+    height: constants.VIEWPORT_HEIGHT + 'px'
+  });
+  $('#victory-screen').show();
 }
 
 let moneyCounter, coverageCounter;
