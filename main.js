@@ -26,6 +26,7 @@ window.isDebug = location && location.hostname==='localhost';
 
 if (window.isDebug) {
   console.log('=== loaded in debug mode ===');
+  window.player = player;
 }
 
 const viewport = {
@@ -35,8 +36,8 @@ const viewport = {
 };
 
 function resetProgress() {
-  player.x = 2100;
-  player.y = 1400;
+  player.x = 2039;
+  player.y = 1459; // manually matched to intro pos, you do the math
   player.money = 0;
   delete player.target;
   viewport.x = 1080;
@@ -184,7 +185,7 @@ function applyMovements(timestamp) {
   });
 }
 
-let paused = false;
+let paused = true; // unlocked during intro
 function drawFrame(timestamp) {
   if (paused) {
     requestAnimationFrame(drawFrame);
@@ -566,9 +567,7 @@ $(document).ready(function() {
   cover.find('#start-button').click(function() {
     playerName = $('#name-input').val() || 'Guy';
     narration.show('start-game', playerName);
-    broadcastSound.play();
     cover.remove();
-    songs[0].play();
     songs[0].addEventListener('ended', function() {
       songs[0].currentTime = 0;
       songs[0].play();
@@ -580,6 +579,35 @@ $(document).ready(function() {
       //  songs[1].play();
       //}, false);
     }, false);
+
+    casetteSound.play();
+    setTimeout(() => {
+      broadcastSound.play();
+    }, 1.5 * 1000);
+    setTimeout(() => {
+      broadcastSound.play();
+    }, 3 * 1000);
+    setTimeout(() => {
+      broadcastSound.currentTime = 0;
+      broadcastSound.play();
+    }, 4 * 1000);
+    setTimeout(() => {
+      $('#intro-cover img').addClass('zoomed-out');
+      songs[0].play();
+    }, 8 * 1000);
+    setTimeout(() => {
+      $('#intro-cover').addClass('transparent');
+      paused = false;
+    }, 12 * 1000); // above + img CSS transition
+      setTimeout(() => {
+      $('#intro-cover').remove();
+    }, 15 * 1000); // above + cover opacity transition
+  });
+
+  const introCover = $('#intro-cover');
+  introCover.css({
+    width: constants.VIEWPORT_WIDTH + 'px',
+    height: constants.VIEWPORT_HEIGHT + 'px'
   });
 
   let audioLoadCount = 0;

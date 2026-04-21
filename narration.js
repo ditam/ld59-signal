@@ -4,9 +4,9 @@ let container, timeout, emptyTimeout;
 
 const narrations = {
   'start-game': (
-    'Good morning everyone. You\'re listening to Radio Free Earth, I\'m your host %%. ' +
+    'Good morning, everyone. You\'re listening to Radio Free Earth, I\'m your host %%. ' +
     'Unless you are on Earth right now, we are beaming at you from the Dusty Dodo, ' +
-    'The only remaining long-range relay in the galaxy.'
+    'the only remaining long-range relay in the galaxy.'
   ),
   'patrol-intercept': (
     'Dear listeners, we are back on air. ' +
