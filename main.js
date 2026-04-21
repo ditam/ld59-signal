@@ -250,7 +250,9 @@ function drawFrame(timestamp) {
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.beginPath();
       ctx.setLineDash([5, 5]);
-      ctx.arc(o.x - viewport.x, o.y - viewport.y, constants.RELAY_RANGE, 0, Math.PI*2);
+      // we want moon relays to reach their planets
+      const relay_range = o.type === 'moon'? constants.MOON_ORBIT_SIZE + 32 : constants.RELAY_RANGE;
+      ctx.arc(o.x - viewport.x, o.y - viewport.y, relay_range, 0, Math.PI*2);
       ctx.stroke();
       ctx.restore();
     }
@@ -491,7 +493,14 @@ function calculateCoverage() {
 
   const objectsInRangeOfAnyRelay = mapObjects.filter(o => {
     return relays.some(r=>{
-      const range = r.type === 'ship'? constants.RELAY_RANGE : player.range;
+      let range;
+      if (r.type === 'ship') {
+        range = constants.RELAY_RANGE;
+      } else if (r.type === 'moon') {
+        range = constants.MOON_ORBIT_SIZE + 32;
+      } else {
+        range = player.range
+      }
       return utils.dist(r, o) <= range;
     });
   });
