@@ -514,12 +514,15 @@ function closeCommsDialog() {
 }
 
 function updateHeader() {
-  moneyCounter.text(`${player.money} credits`);
-
   const totalPopulation = utils.sum(mapObjects.map(o => o.population));
   const coveredPopulation = calculateCoverage();
   const percentage = coveredPopulation / totalPopulation * 100;
   coverageCounter.text(`${coveredPopulation} listeners (${percentage.toFixed(2)}%)`);
+
+  const ratio = coveredPopulation / totalPopulation;
+  const earnings = Math.round(ratio * 30); // TODO: constant
+  player.money += earnings;
+  moneyCounter.text(`${player.money} credits`);
 }
 
 function calculateCoverage() {
