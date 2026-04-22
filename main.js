@@ -407,8 +407,10 @@ function updateObjectsInRange() {
 }
 
 function showCommDialog(o) {
+  console.assert(o.x, o.y, 'Invalid comms target:', o);
   paused = true;
   if (o.type === 'ship') {
+    console.assert(o.name, o.targetID, o.sourceID, 'Invalid ship in comms:', o);
     commsDialog.find('#comms-title').text('Message from: ' + o.name);
     commsDialog.find('#comms-text').text(
       (Math.random() < 0.5 ? `Good to see you, ${playerName}! ` : 'Hey, are you that radio guy? ') +
@@ -418,6 +420,7 @@ function showCommDialog(o) {
     commsDialog.find('#comms-action-button').text('Install relay').on('click', () => {
       if (player.money >= 5000) {
         player.money -= 5000;
+        console.log('Adding relay to ship:', o.id, o);
         o.hasRelay = true;
         clickSound.play();
       } else {
@@ -429,6 +432,7 @@ function showCommDialog(o) {
   } else if (o.type === 'patrol') {
     const planetID = o.id.split('patrol-').join('');
     const planet = getObject(planetID);
+    console.assert(o.id, planet, 'Invalid patrol in comms:', o);
     commsDialog.find('#comms-title').text('Message from: Officer ' + o.name.split(' ').pop());
     commsDialog.find('#comms-text').text(
       `You are in breach of the planetary sphere of ${planetID}. ` +
@@ -457,6 +461,7 @@ function showCommDialog(o) {
     commsDialog.find('#comms-action-button-desc').text('Costs 40 000');
   } else {
     // moon
+    console.assert(o.subtype, o.name, 'Invalid moon in comms:', o);
     const readableSubtype = o.subtype === 'basic'? 'small moon': 'space station';
     commsDialog.find('#comms-title').text('Message from: ' + o.name);
     commsDialog.find('#comms-text').text(
@@ -498,6 +503,10 @@ function showCommDialog(o) {
 }
 
 function closeCommsDialog() {
+  // TODO: better click handling for this dialog pls
+  commsDialog.find('#comms-action-button').off();
+  commsDialog.find('#comms-close-button').off();
+
   commsDialog.hide();
   commsList.show();
   paused = false;
