@@ -325,6 +325,10 @@ function drawFrame(timestamp) {
     ctx.rotate(angle);
     ctx.translate(-(player.x-viewport.x), -(player.y-viewport.y));
     ctx.drawImage(imgAssets.dodoImg, player.x - viewport.x - size/2, player.y - viewport.y - size/2, size, size);
+    if (window.isDebug) {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(player.x - viewport.x, player.y - viewport.y, 4, 4);
+    }
   ctx.restore();
   ctx.fill();
   ctx.restore();
