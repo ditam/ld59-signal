@@ -643,9 +643,10 @@ $(document).ready(function() {
     }, 8 * 1000);
     setTimeout(() => {
       $('#intro-cover').addClass('transparent');
+      $('#comms-button').show();
       paused = false;
     }, 12 * 1000); // above + img CSS transition
-      setTimeout(() => {
+    setTimeout(() => {
       $('#intro-cover').remove();
     }, 15 * 1000); // above + cover opacity transition
   });
@@ -699,9 +700,7 @@ $(document).ready(function() {
   moneyCounter = $('#money-counter');
   coverageCounter = $('#coverage-counter');
   commsList = $('#comms-list');
-  $('#comms-button').on('click', () => {
-    commsList.toggle();
-  });
+  $('#comms-button').hide();
 
   commsDialog = $('#comms-dialog').hide();
   commsDialog.css({

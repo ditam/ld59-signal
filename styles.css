@@ -82,11 +82,7 @@ body {
   border: 1px solid white;
   border-radius: 5px;
   padding: 8px;
-  cursor: pointer;
-}
-
-#comms-button:hover {
-  background-color: rgba(255, 255, 255, 0.4);
+  /* This used to be clickable, but probably no longer makes sense... */
 }
 
 #comms-list {
