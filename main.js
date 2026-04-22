@@ -40,13 +40,21 @@ const viewport = {
   y: 0,
 };
 
-function resetProgress() {
+function resetProgress(position) {
   player.x = 2039;
   player.y = 1459; // manually matched to intro pos, you do the math
+
   player.money = 0;
   delete player.target;
   viewport.x = 1080;
   viewport.y = 920;
+
+  if (position) {
+    player.x = position.x;
+    player.y = position.y;
+    viewport.x = 110; // FIXME: calculate from positionOverride
+    viewport.y = 550;
+  }
 
   if (isDebug) {
     player.money = 120000;
@@ -173,8 +181,16 @@ function applyMovements(timestamp) {
       o.y += vector.dY * constants.PATROL_SPEED;
 
       if (utils.dist(o, player) < constants.PATROL_INTERCEPT_RANGE) {
-        resetProgress();
         const planetID = o.id.split('patrol-').join('');
+        let positionOverride;
+        if (planetID === 'Dagon') {
+          // nicer for the players
+          positionOverride = {
+            x: 1100,
+            y: 1100
+          };
+        }
+        resetProgress(positionOverride);
         narration.show('patrol-intercept', planetID);
         broadcastSound.play();
       }
