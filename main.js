@@ -213,6 +213,12 @@ function applyMovements(timestamp) {
 }
 
 let paused = true; // unlocked during intro
+if (window.isDebug) {
+  window.setPaused = function(p) {
+    paused = p;
+  }
+}
+
 function drawFrame(timestamp) {
   if (paused) {
     requestAnimationFrame(drawFrame);
@@ -410,9 +416,17 @@ function updateObjectsInRange() {
     });
 
     commsList.empty();
-    objectsInRange.filter(o=>o.type === 'patrol' || o.type === 'ship' || o.type === 'moon').forEach(o => {
+    let objectsToShow = objectsInRange;
+    if (window.isDebug) {
+      objectsToShow = mapObjects;
+      console.log('commsList DEBUG mode');
+    }
+    objectsToShow.filter(o=>o.type === 'patrol' || o.type === 'ship' || o.type === 'moon').forEach(o => {
       const entry = $('<div>');
       entry.addClass('comms-entry');
+      if (o.type === 'patrol') {
+        entry.addClass('patrol');
+      }
       entry.text(o.name);
       entry.appendTo(commsList);
       entry.on('click', ()=> {
