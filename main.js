@@ -438,6 +438,9 @@ function updateObjectsInRange() {
       if (o.type === 'patrol') {
         entry.addClass('patrol');
       }
+      if (o.hasRelay) {
+        entry.addClass('has-relay');
+      }
       entry.text(o.name);
       entry.appendTo(commsList);
       entry.on('click', ()=> {
@@ -494,6 +497,13 @@ function showCommDialog(o) {
       closeCommsDialog();
     });
     commsDialog.find('#comms-action-button-desc').text('Costs 5000');
+    if (o.hasRelay) {
+      commsDialog.find('#comms-action-button').hide();
+      commsDialog.find('#comms-action-button-desc').text('Already has relay.');
+    } else {
+      commsDialog.find('#comms-action-button').show();
+      commsDialog.find('#comms-action-button-desc').show();
+    }
   } else if (o.type === 'patrol') {
     const planetID = o.id.split('patrol-').join('');
     const planet = getObject(planetID);
