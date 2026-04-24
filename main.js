@@ -456,13 +456,32 @@ function showCommDialog(o) {
   console.assert(o.x, o.y, 'Invalid comms target:', o);
   paused = true;
   if (o.type === 'ship') {
+    const shipMessages = [
+      (`I'm shipping cargo between ${o.targetID} and ${o.sourceID}. ` +
+      'If you want, for a small fee I wouldn\'t mind carrying a small relay for your broadcast.'),
+      `I'm headed to ${o.targetID}. For 5000 I'll carry your signal. At least that way I could finally get better reception than usually!`,
+      `I know you're not allowed in orbit with antennae this big. If you have something more discreet, I can bring it along. But maybe for my troubles...`
+    ];
+    if (mapObjects.filter(o=>o.hasRelay).length > 5) {
+      shipMessages.push(
+        `Everyone's talking about your relays, man! I heard you get perfect quality broadcasts of Radio Free Earth with them. I'd love to carry one! But, erm, I'd also like to get paid like the others.`
+      );
+    }
     console.assert(o.name, o.targetID, o.sourceID, 'Invalid ship in comms:', o);
     commsDialog.find('#comms-title').text('Message from: ' + o.name);
     commsDialog.find('#comms-text').text(
       (Math.random() < 0.5 ? `Good to see you, ${playerName}! ` : 'Hey, are you that radio guy? ') +
-      `I'm shipping cargo between ${o.targetID} and ${o.sourceID}. ` +
-      'If you want, for a small fee I wouldn\'t mind carrying a small relay for your broadcast.'
+      utils.getRandomItem(shipMessages)
     );
+    if (o.hasRelay) {
+      commsDialog.find('#comms-text').text(
+        utils.getRandomItem([
+          `Oh, if it's not the Dusty Dodo again! Hey ${playerName}. Since we installed your relay, we are getting crisp audio quality.`,
+          `We've been doing our part carrying the relay! The best of luck to you guys, we love the broadcast.`,
+          `Did you manage to broadcast to Dagon yet? We are not allowed there with our cargo ships. For years now. Those guys are jerks.`
+        ])
+      );
+    }
     commsDialog.find('#comms-action-button').text('Install relay').on('click', () => {
       if (player.money >= 5000) {
         player.money -= 5000;
@@ -761,6 +780,13 @@ $(document).ready(function() {
       if (utils.dist(player, target) > constants.MIN_TARGET_DIST) {
         //console.log('set new target:', target);
         player.target = target;
+      }
+
+      // trigger narration - just aesthetic, no gameplay effect
+      // (1100 is roughly half the diagonal of the fullHD screen)
+      if (utils.dist(player, target) > 1100) {
+        narration.show('long-journey', playerName);
+        broadcastSound.play();
       }
     }
   }, false);

@@ -14,6 +14,10 @@ const narrations = {
     'Our crime? Trying to bring you the finest Earthly tunes and news coverage without censorship. ' +
     'Tell your friends to tune in.'
   ),
+  'long-journey': (
+    'We have set our thrusters for a long journey, we will lean back now to just drift and broadcast. You are still listening to the song of the Dodo, ' +
+    'this is still your friendly host %%, you\'re still tuned in to Radio Free Earth, and they still can not stop the signal.'
+  ),
   'nowhere': (
     'We have just arrived to the middle of nowhere. We saw that there was nothing here, but we still came. ' +
     'Because it\'s about the journey, not the destination... ... This is the signal of Radio Free Earth.'
