@@ -377,21 +377,32 @@ function drawFrame(timestamp) {
 }
 
 let idsInRange_old = [];
+let planetIDsDetectingPlayer_old = [];
+// keeps track of objects in range, dispatches patrols, updates commsList in DOM
 function updateObjectsInRange() {
-  // keeps track of objects in range, dispatches patrols, updates commsList in DOM
   const objectsInRange = mapObjects.filter(o => {
     return utils.dist(player, o) <= player.range;
   });
-  const objectsNotInRange = mapObjects.filter(o => {
-    return utils.dist(player, o) > player.range;
+
+  const planets = mapObjects.filter(o => o.type === 'planet');
+  const planetsDetectingPlayer = [];
+  const planetsNotDetectingPlayer = [];
+  planets.forEach(p => {
+    if (utils.dist(p, player) <= constants.PLANETARY_ZONE_SIZE) {
+      planetsDetectingPlayer.push(p);
+    } else {
+      planetsNotDetectingPlayer.push(p);
+    }
   });
 
   const idsInRange = objectsInRange.map(o => o.id).sort();
+  const planetIDsDetectingPlayer = planetsDetectingPlayer.map(o => o.id).sort();
 
-  if (!utils.arraysEqual(idsInRange_old, idsInRange)) { // list has changed
+  // if list has changed, re-render
+  if (!utils.arraysEqual(idsInRange_old, idsInRange) || !utils.arraysEqual(planetIDsDetectingPlayer_old, planetIDsDetectingPlayer)) {
     //console.log('-- new comms list:', objectsInRange);
     // update planetary patrols
-    objectsInRange.filter(o=>o.type==='planet').forEach(p=>{
+    planetsDetectingPlayer.filter(o=>o.type==='planet').forEach(p=>{
       if (!p.bribed && !p.hasPatrol) {
         const patrol = {
           type: 'patrol',
@@ -407,7 +418,7 @@ function updateObjectsInRange() {
         alarmSound.play();
       }
     });
-    objectsNotInRange.filter(o=>o.type==='planet').forEach(p=>{
+    planetsNotDetectingPlayer.filter(o=>o.type==='planet').forEach(p=>{
       if (p.hasPatrol) {
         const patrol = getObject('patrol-'+p.id);
         utils.removeItem(mapObjects, patrol);
@@ -417,10 +428,10 @@ function updateObjectsInRange() {
 
     commsList.empty();
     let objectsToShow = objectsInRange;
-    if (window.isDebug) {
-      objectsToShow = mapObjects;
-      console.log('commsList DEBUG mode');
-    }
+    //if (window.isDebug) {
+    //  objectsToShow = mapObjects;
+    //  console.log('commsList DEBUG mode');
+    //}
     objectsToShow.filter(o=>o.type === 'patrol' || o.type === 'ship' || o.type === 'moon').forEach(o => {
       const entry = $('<div>');
       entry.addClass('comms-entry');
@@ -438,6 +449,7 @@ function updateObjectsInRange() {
   }
 
   idsInRange_old = idsInRange;
+  planetIDsDetectingPlayer_old = planetIDsDetectingPlayer;
 }
 
 function showCommDialog(o) {
@@ -747,7 +759,7 @@ $(document).ready(function() {
         y: viewport.y + e.offsetY
       };
       if (utils.dist(player, target) > constants.MIN_TARGET_DIST) {
-        console.log('set new target:', target);
+        //console.log('set new target:', target);
         player.target = target;
       }
     }
