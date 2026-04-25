@@ -574,6 +574,14 @@ function showCommDialog(o) {
       closeCommsDialog();
     });
     commsDialog.find('#comms-action-button-desc').text('Costs 20 000');
+    // station-type moons still show the upgrade with the relay (to allow stacking updates)
+    if (o.hasRelay && o.subtype === 'basic') {
+      commsDialog.find('#comms-action-button').hide();
+      commsDialog.find('#comms-action-button-desc').text('Already has relay.');
+    } else {
+      commsDialog.find('#comms-action-button').show();
+      commsDialog.find('#comms-action-button-desc').show();
+    }
   }
 
   commsDialog.find('#comms-close-button').text('Close').on('click', closeCommsDialog);
