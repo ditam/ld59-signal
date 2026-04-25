@@ -103,7 +103,7 @@ body {
 }
 
 .comms-entry.has-relay {
-  border-left: 4px solid green;
+  border-left: 4px dashed rgba(255, 255, 255, 0.6);
 }
 .comms-entry.patrol {
   background-color: rgba(85, 70, 220, 0.3);

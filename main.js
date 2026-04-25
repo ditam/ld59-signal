@@ -305,6 +305,9 @@ function drawFrame(timestamp) {
     if (o.type === 'planet') {
       ctx.save();
       ctx.strokeStyle = 'rgba(224, 100, 100, 0.6)';
+      if (o.bribed) {
+        ctx.strokeStyle = 'rgba(35, 231, 149, 0.4)';
+      }
       ctx.beginPath();
       ctx.setLineDash([15, 5]);
       ctx.arc(o.x - viewport.x, o.y - viewport.y, constants.PLANETARY_ZONE_SIZE, 0, Math.PI*2);
